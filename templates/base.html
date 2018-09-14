@@ -24,7 +24,7 @@
             Sign in with GitHub
             </a>
             {% else %}
-                <span>Hello, {{ username }}</span>
+                <span>Hello, <a href="https://github.com/{{ username }}">{{ username }}</a></span>
             {% endif %}
         </div>
 

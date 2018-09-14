@@ -137,7 +137,7 @@ async def handle_add_blurb_post(request):
                 print(bac)
                 context[
                     "pr_url"
-                ] = f"https://github.com/python/cpython/pulls/{pr_number}"
+                ] = f"https://github.com/python/cpython/pull/{pr_number}"
                 context["pr_number"] = pr_number
                 context["status"] = "failure"
             else:
@@ -146,7 +146,7 @@ async def handle_add_blurb_post(request):
                 context["path"] = response["content"]["path"]
                 context[
                     "pr_url"
-                ] = f"https://github.com/python/cpython/pulls/{pr_number}"
+                ] = f"https://github.com/python/cpython/pull/{pr_number}"
                 context["pr_number"] = pr_number
                 context["status"] = "success"
 
