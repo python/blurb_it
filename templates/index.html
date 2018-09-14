@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if error_message %}
+        <div class="alert alert-danger" role="alert">
+          {{ error_message }}
+        </div>
+    {% endif %}
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <a href="/"><img class="mb-4" src="https://www.python.org/static/community_logos/python-logo-master-v3-TM.png" alt="" height="72"></a>
+        <h1 class="display-4">Blurb it!</h1>
+        <p class="lead">add a blurb to CPython pull request.</p>
+    </div>
+
+    <p class="lead text-center">
+        <a class="btn btn-social btn-github" href="https://github.com/login/oauth/authorize?client_id=f426762284058c7df184&scope=repo&redirect_uri=http://localhost:8080/add_blurb">
+        <span class="fa fa-github"></span>
+        Sign in with GitHub
+        </a>
+    </p>
+
+{% endblock %}
