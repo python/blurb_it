@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <a href="/"><img class="mb-4" src="https://www.python.org/static/community_logos/python-logo-master-v3-TM.png" alt="" height="72"></a>
+        <p class="lead">Please install the <a href="https://github.com/apps/blurb-it">blurb-it GitHub App</a>, and enable it on your CPython repository.</p>
+        <p>blurb-it requires write access to your CPython repository (so it can write the news file for you).</p>
+    </div>
+
+    <p class="lead text-center">
+        <a class="btn btn-social btn-github" href="https://github.com/apps/blurb-it/installations/new">
+        <span class="fa fa-wrench"></span>
+        Install blurb-it now
+        </a>
+    </p>
+
+{% endblock %}

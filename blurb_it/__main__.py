@@ -1,9 +1,9 @@
-
 import base64
 import os
 
 import aiohttp
 import aiohttp_jinja2
+import gidgethub
 import jinja2
 from aiohttp import web
 from aiohttp_session import get_session, session_middleware
@@ -11,29 +11,12 @@ from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 from gidgethub.aiohttp import GitHubAPI
 
-import gidgethub
+from blurb_it import error, middleware, util
+
+routes = web.RouteTableDef()
 
 
-from blurb_it import util
-
-
-@web.middleware
-async def error_middleware(request, handler):
-    """Middleware to render error message using the template renderer."""
-    try:
-        response = await handler(request)
-    except web.HTTPException as ex:
-        if ex.text:
-            message = ex.text
-        else:
-            message = ex.reason
-        context = {"error_message": message, "status": ex.status}
-        response = aiohttp_jinja2.render_template(
-            "error.html", request, context=context
-        )
-    return response
-
-
+@routes.get("/", name="home")
 async def handle_get(request):
     """Render a page with a textbox and submit button."""
     # data = request.query_string
@@ -44,13 +27,28 @@ async def handle_get(request):
     if request_session.get("username") and request_session.get("token"):
         context["username"] = request_session["username"]
         location = request.app.router["add_blurb"].url_for()
-        raise web.HTTPFound(location=location)
+        response = web.HTTPFound(location=location)
     else:
-
-        response = aiohttp_jinja2.render_template("index.html", request, context={})
+        response = aiohttp_jinja2.render_template(
+            "index.html", request, context=context
+        )
     return response
 
 
+@routes.get("/install", name="install")
+async def handle_install(request):
+    """Render a page, ask user to install blurb_it"""
+    # data = request.query_string
+    # data2 = await request.rel_url.query['']
+    context = {}
+    if await util.has_session(request):
+        context.update(await util.get_session_context(request, context))
+
+    response = aiohttp_jinja2.render_template("install.html", request, context=context)
+    return response
+
+
+@routes.get("/add_blurb", name="add_blurb")
 async def handle_add_blurb_get(request):
     """Render a page with a textbox and submit button."""
     token = request.rel_url.query.get("code")
@@ -59,6 +57,16 @@ async def handle_add_blurb_get(request):
 
     if await util.has_session(request):
         context.update(await util.get_session_context(request, context))
+        async with aiohttp.ClientSession() as session:
+
+            gh = GitHubAPI(session, context["username"])
+
+            jwt = util.get_jwt(os.getenv("GH_APP_ID"), os.getenv("GH_PRIVATE_KEY"))
+            try:
+                await util.get_installation(gh, jwt, context["username"])
+            except error.InstallationNotFound:
+                return web.HTTPFound(location=request.app.router["install"].url_for())
+
     elif token is not None:
 
         async with aiohttp.ClientSession() as session:
@@ -72,16 +80,26 @@ async def handle_add_blurb_get(request):
             ) as response:
                 response_text = await response.text()
                 access_token = get_access_token(response_text)
-                gh = GitHubAPI(session, "python/cpython", oauth_token=access_token)
+                gh = GitHubAPI(session, "blurb-it", oauth_token=access_token)
                 response = await gh.getitem("/user")
-                print(response)
                 login_name = response["login"]
                 request_session = await get_session(request)
                 request_session["username"] = login_name
                 request_session["token"] = access_token
                 context["username"] = request_session["username"]
+
+                gh = GitHubAPI(session, context["username"])
+
+                jwt = util.get_jwt(os.getenv("GH_APP_ID"), os.getenv("GH_PRIVATE_KEY"))
+                try:
+                    await util.get_installation(gh, jwt, context["username"])
+                except error.InstallationNotFound:
+                    return web.HTTPFound(
+                        location=request.app.router["install"].url_for()
+                    )
+
     else:
-        raise web.HTTPFound(location="home")
+        return web.HTTPFound(location=request.app.router["home"].url_for())
 
     response = aiohttp_jinja2.render_template(
         "add_blurb.html", request, context=context
@@ -97,11 +115,11 @@ def get_access_token(token_str):
     return None
 
 
+@routes.post("/add_blurb")
 async def handle_add_blurb_post(request):
     if await util.has_session(request):
         session_context = await util.get_session_context(request)
         data = await request.post()
-        print(data)
         bpo_number = data.get("bpo_number", "").strip()
         section = data.get("section", "").strip()
         news_entry = data.get("news_entry", "").strip()
@@ -110,51 +128,65 @@ async def handle_add_blurb_post(request):
 
         context = {}
         context.update(session_context)
+
         async with aiohttp.ClientSession() as session:
-            print("session context")
-            print(session_context)
-            gh = GitHubAPI(
-                session, "python/cpython", oauth_token=session_context["token"]
-            )
-            pr = await gh.getitem(f"/repos/python/cpython/pulls/{pr_number}")
-            encoded = base64.b64encode(str.encode(news_entry))
-            decoded = encoded.decode("utf-8")
-            put_data = {
-                "branch": pr["head"]["ref"],
-                "content": decoded,
-                "path": path,
-                "message": "Added by blurb_it",
-            }
-            print(put_data)
+            gh = GitHubAPI(session, session_context["username"])
+
+            jwt = util.get_jwt(os.getenv("GH_APP_ID"), os.getenv("GH_PRIVATE_KEY"))
             try:
-                response = await gh.put(
-                    f"/repos/{pr['user']['login']}/cpython/contents/{path}",
-                    data=put_data,
+                installation = await util.get_installation(
+                    gh, jwt, session_context["username"]
                 )
-            except gidgethub.BadRequest as bac:
-                print("error")
-                print(int(bac.status_code))
-                print(bac)
-                context[
-                    "pr_url"
-                ] = f"https://github.com/python/cpython/pull/{pr_number}"
-                context["pr_number"] = pr_number
-                context["status"] = "failure"
+            except error.InstallationNotFound:
+                return web.HTTPFound(location=request.app.router["install"].url_for())
             else:
-                commit_url = response["commit"]["html_url"]
-                context["commit_url"] = commit_url
-                context["path"] = response["content"]["path"]
-                context[
-                    "pr_url"
-                ] = f"https://github.com/python/cpython/pull/{pr_number}"
-                context["pr_number"] = pr_number
-                context["status"] = "success"
+                access_token = await util.get_installation_access_token(
+                    gh, jwt=jwt, installation_id=installation["id"]
+                )
+
+                gh = GitHubAPI(
+                    session,
+                    session_context["username"],
+                    oauth_token=access_token["token"],
+                )
+                pr = await gh.getitem(f"/repos/python/cpython/pulls/{pr_number}")
+                pr_repo_full_name = pr["head"]["repo"]["full_name"]
+                encoded = base64.b64encode(str.encode(news_entry))
+                decoded = encoded.decode("utf-8")
+                put_data = {
+                    "branch": pr["head"]["ref"],
+                    "content": decoded,
+                    "path": path,
+                    "message": "📜🤖 Added by blurb_it.",
+                }
+                try:
+                    response = await gh.put(
+                        f"/repos/{pr_repo_full_name}/contents/{path}", data=put_data
+                    )
+                except gidgethub.BadRequest as bac:
+                    print("BadRequest")
+                    print(int(bac.status_code))
+                    print(bac)
+                    context[
+                        "pr_url"
+                    ] = f"https://github.com/python/cpython/pull/{pr_number}"
+                    context["pr_number"] = pr_number
+                    context["status"] = "failure"
+                else:
+                    commit_url = response["commit"]["html_url"]
+                    context["commit_url"] = commit_url
+                    context["path"] = response["content"]["path"]
+                    context[
+                        "pr_url"
+                    ] = f"https://github.com/python/cpython/pull/{pr_number}"
+                    context["pr_number"] = pr_number
+                    context["status"] = "success"
 
         template = "add_blurb.html"
         response = aiohttp_jinja2.render_template(template, request, context=context)
         return response
     else:
-        raise web.HTTPFound(location=request.app.router["add_blurb"].url_for())
+        return web.HTTPFound(location=request.app.router["add_blurb"].url_for())
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -163,7 +195,7 @@ if __name__ == "__main__":  # pragma: no cover
 
     app = web.Application(
         middlewares=[
-            error_middleware,
+            middleware.error_middleware,
             session_middleware(EncryptedCookieStorage(secret_key)),
         ]
     )
@@ -175,12 +207,6 @@ if __name__ == "__main__":  # pragma: no cover
     port = os.environ.get("PORT")
     if port is not None:
         port = int(port)
-    app.add_routes(
-        [
-            web.get("/", handle_get, name="home"),
-            web.get("/add_blurb", handle_add_blurb_get, name="add_blurb"),
-            web.post("/add_blurb", handle_add_blurb_post),
-            web.static("/static", os.path.join(os.getcwd(), "static")),
-        ]
-    )
+    app.router.add_routes(routes)
+    app.add_routes([web.static("/static", os.path.join(os.getcwd(), "static"))])
     web.run_app(app, port=port)
