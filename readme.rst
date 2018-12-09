@@ -31,6 +31,15 @@ it on your own CPython repository.
 
 `Install blurb-it <https://github.com/apps/blurb-it/installations/new>`_ .
 
+Uninstall blurb-it
+==================
+
+1. Go to https://github.com/settings/installations.
+
+2. Click blurb-it's "Configure" button.
+
+3. Scroll down and click the "Uninstall" button.
+
 Deploy
 ======
 

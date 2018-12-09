@@ -22,8 +22,8 @@ async def nonceify(body):
 
 async def get_session_context(request, context=None):
     context = context or {}
-    request_session = await get_session(request)
     if await has_session(request):
+        request_session = await get_session(request)
         context["username"] = request_session["username"]
         context["token"] = request_session["token"]
 
