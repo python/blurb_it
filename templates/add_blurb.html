@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-12">
+            {% if status == "success" %}
+                <div class="alert alert-success" role="alert">✅ News file (<a href="{{ commit_url }}">{{ path }}</a>) created for <strong><a href="{{ pr_url }}">GH-{{ pr_number }}</a></strong></div>
+                <h3>📜🤖 Blurb it again?</h3>
+            {% else %}
+                {% if status == "failure" %}
+                    <div class="alert alert-danger" role="alert">❌ Cannot create news file for <strong><a href="{{ pr_url }}">GH-{{ pr_number }}</a></strong>! Make sure you have access to that PR!</div>
+                    <h3>📜🤖 Blurb it again?</h3>
+                {% endif %}
+            {% endif %}
+
+            <form action="/add_blurb" method="post" accept-charset="utf-8" enctype="application/x-www-form-urlencoded">
+                <div class="mb-3">
+                    <div class="col form-inline">
+                        <label for="bpo_number" class="form-inline">bpo-</label><input type="text" class="form-control form-inline" placeholder="12345" id="bpo_number" name="bpo_number" required>
+                    </div>
+                    <div class="col form-inline">
+                        <small id="bpo-help" class="form-text text-muted">The bugs.python.org issue number.</small>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="col form-inline">
+                        <label for="pr_number" class="form-inline">GH-</label><input type="text" class="form-control form-inline" placeholder="12345" id="pr_number" name="pr_number" required>
+                    </div>
+                    <div class="col form-inline">
+                        <small id="gh-help" class="form-text text-muted">The CPython GitHub pull request number.</small>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="col form-inline">
+                        <label for="section" class="form-inline">Choose an option: </label>
+                        <select id="section" name="section" class="form-control form-inline" required>
+                            <option></option>
+                            <option>Security</option>
+                            <option>Core and Builtins</option>
+                            <option>Library</option>
+                            <option>Documentation</option>
+                            <option>Tests</option>
+                            <option>Build</option>
+                            <option>Windows</option>
+                            <option>macOS</option>
+                            <option>IDLE</option>
+                            <option>Tools/Demos</option>
+                            <option>C API</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <textarea class="form-control" id="news_entry" name="news_entry" rows="10" placeholder="Write your Misc/NEWS entry below.
+It should be a simple ReST paragraph.
+Don't start with '- Issue #<n>: ' or '- bpo-<n>: ' or that sort of stuff." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">📜🤖 blurb it!</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
