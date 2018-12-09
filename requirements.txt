@@ -1,6 +1,6 @@
 aiohttp==3.4.4
 aiohttp-jinja2==1.1.0
 gidgethub==3.0.0
-aiohttp-session[secure]
+aiohttp-session[secure]==2.7.0
 pyjwt
 cryptography
