@@ -22,5 +22,5 @@ async def test_get_misc_news_filename():
         "tacos, asymmetrical tilde veniam bespoke reprehenderit ut do.",
     )
 
-    assert path.startswith("/Misc/NEWS.d/next/Library/")
+    assert path.startswith("Misc/NEWS.d/next/Library/")
     assert path.endswith(".bpo-123.Ps4kgC.rst")
