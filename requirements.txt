@@ -1,4 +1,4 @@
-aiohttp==3.4.1
+aiohttp==3.4.4
 aiohttp-jinja2==1.0.0
 gidgethub==3.0.0
 aiohttp-session[secure]
