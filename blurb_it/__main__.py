@@ -159,6 +159,14 @@ async def handle_add_blurb_post(request):
                     "path": path,
                     "message": "📜🤖 Added by blurb_it.",
                 }
+                if pr["user"]["login"] != session_context["username"]:
+                    is_core_dev = util.is_core_dev(gh, session_context["username"])
+                    if is_core_dev:
+                        gh = GitHubAPI(
+                    session,
+                    "miss-islington",
+                    oauth_token=os.getenv("MI_GH_AUTH"),
+                )
                 try:
                     response = await gh.put(
                         f"/repos/{pr_repo_full_name}/contents/{path}", data=put_data
