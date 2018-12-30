@@ -5,6 +5,7 @@ import gidgethub
 
 from blurb_it import util
 
+
 class FakeGH:
     def __init__(self, *, getiter=None, getitem=None, post=None, patch=None):
         self._getitem_return = getitem
@@ -45,7 +46,16 @@ class FakeGH:
 
 
 async def test_nonceify():
-    body = "Lorem ipsum dolor amet flannel squid normcore tbh raclette enim" "pabst tumblr wolf farm-to-table bitters. Bitters keffiyeh next" "level proident normcore, et all of +1 90's in blue bottle" "chillwave lorem. Id keffiyeh microdosing cupidatat pour-over" "paleo farm-to-table tumeric sriracha +1. Raclette in poutine," "bushwick kitsch id pariatur hexagon. Thundercats shaman beard," "nulla swag echo park organic microdosing. Hot chicken tbh pop-up" "tacos, asymmetrical tilde veniam bespoke reprehenderit ut do."
+    body = (
+        "Lorem ipsum dolor amet flannel squid normcore tbh raclette enim"
+        "pabst tumblr wolf farm-to-table bitters. Bitters keffiyeh next"
+        "level proident normcore, et all of +1 90's in blue bottle"
+        "chillwave lorem. Id keffiyeh microdosing cupidatat pour-over"
+        "paleo farm-to-table tumeric sriracha +1. Raclette in poutine,"
+        "bushwick kitsch id pariatur hexagon. Thundercats shaman beard,"
+        "nulla swag echo park organic microdosing. Hot chicken tbh pop-up"
+        "tacos, asymmetrical tilde veniam bespoke reprehenderit ut do."
+    )
 
     nonce = await util.nonceify(body)
     assert nonce == "Ps4kgC"
