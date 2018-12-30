@@ -187,7 +187,7 @@ async def handle_add_blurb_post(request):
                                 ] = f"https://github.com/python/cpython/pull/{pr_number}"
                                 context["pr_number"] = pr_number
                                 context["status"] = "failure"
-                                await gh.post(f"/repos/python/cpython/issues/{pr_number}/comments", data={"body": "Ping!"})
+                                await mi_gh.post(f"/repos/python/cpython/issues/{pr_number}/comments", data={"body": "Ping!"})
                             else:
                                 print("response")
                                 print(response)
