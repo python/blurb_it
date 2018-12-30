@@ -160,37 +160,61 @@ async def handle_add_blurb_post(request):
                     "message": "📜🤖 Added by blurb_it.",
                 }
                 if pr["user"]["login"] != session_context["username"]:
-                    is_core_dev = await util.is_core_dev(
-                        gh, session_context["username"]
-                    )
-                    if is_core_dev:
-                        gh = GitHubAPI(
-                            session,
-                            "miss-islington",
-                            oauth_token=os.getenv("MI_GH_AUTH"),
-                        )
-                try:
-                    response = await gh.put(
-                        f"/repos/{pr_repo_full_name}/contents/{path}", data=put_data
-                    )
-                except gidgethub.BadRequest as bac:
-                    print("BadRequest")
-                    print(int(bac.status_code))
-                    print(bac)
-                    context[
-                        "pr_url"
-                    ] = f"https://github.com/python/cpython/pull/{pr_number}"
-                    context["pr_number"] = pr_number
-                    context["status"] = "failure"
+                    async with aiohttp.ClientSession() as session:
+                        mi_gh = GitHubAPI(session, "miss-islington", oauth_token=os.getenv("MI_GH_AUTH"))
+                        is_core_dev = await util.is_core_dev(mi_gh, session_context["username"])
+                        if is_core_dev:
+                            try:
+
+                                response = await mi_gh.put(
+                                    f"/repos/{pr_repo_full_name}/contents/{path}",
+                                    data=put_data
+                                )
+                            except gidgethub.BadRequest as bac:
+                                print("BadRequest")
+                                print(int(bac.status_code))
+                                print(bac)
+                                context[
+                                    "pr_url"
+                                ] = f"https://github.com/python/cpython/pull/{pr_number}"
+                                context["pr_number"] = pr_number
+                                context["status"] = "failure"
+                            else:
+                                print("response")
+                                print(response)
+                                commit_url = response["commit"]["html_url"]
+                                context["commit_url"] = commit_url
+                                context["path"] = response["content"]["path"]
+                                context[
+                                    "pr_url"
+                                ] = f"https://github.com/python/cpython/pull/{pr_number}"
+                                context["pr_number"] = pr_number
+                                context["status"] = "success"
                 else:
-                    commit_url = response["commit"]["html_url"]
-                    context["commit_url"] = commit_url
-                    context["path"] = response["content"]["path"]
-                    context[
-                        "pr_url"
-                    ] = f"https://github.com/python/cpython/pull/{pr_number}"
-                    context["pr_number"] = pr_number
-                    context["status"] = "success"
+                    try:
+                        response = await gh.put(
+                            f"/repos/{pr_repo_full_name}/contents/{path}", data=put_data
+                        )
+                    except gidgethub.BadRequest as bac:
+                        print("BadRequest")
+                        print(int(bac.status_code))
+                        print(bac)
+                        context[
+                            "pr_url"
+                        ] = f"https://github.com/python/cpython/pull/{pr_number}"
+                        context["pr_number"] = pr_number
+                        context["status"] = "failure"
+                    else:
+                        print("response")
+                        print(response)
+                        commit_url = response["commit"]["html_url"]
+                        context["commit_url"] = commit_url
+                        context["path"] = response["content"]["path"]
+                        context[
+                            "pr_url"
+                        ] = f"https://github.com/python/cpython/pull/{pr_number}"
+                        context["pr_number"] = pr_number
+                        context["status"] = "success"
 
         template = "add_blurb.html"
         response = aiohttp_jinja2.render_template(template, request, context=context)
