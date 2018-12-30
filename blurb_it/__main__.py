@@ -172,8 +172,8 @@ async def handle_add_blurb_post(request):
                         print(f"{session_context['username']} is core dev {is_core_dev} ")
                         if is_core_dev:
                             try:
-                                put_data["author"] = {"name": "Miss Islington (bot)", "email": "mariatta.wijaya+miss-islington@gmail.com"}
-                                put_data["committer"] = {"name": "Miss Islington (bot)", "email": "mariatta.wijaya+miss-islington@gmail.com"}
+                                # put_data["author"] = {"name": "Miss Islington (bot)", "email": "mariatta.wijaya+miss-islington@gmail.com"}
+                                # put_data["committer"] = {"name": "Miss Islington (bot)", "email": "mariatta.wijaya+miss-islington@gmail.com"}
                                 response = await mi_gh.put(
                                     f"/repos/{pr_repo_full_name}/contents/{path}",
                                     data=put_data,
