@@ -161,14 +161,20 @@ async def handle_add_blurb_post(request):
                 }
                 if pr["user"]["login"] != session_context["username"]:
                     async with aiohttp.ClientSession() as session:
-                        mi_gh = GitHubAPI(session, "miss-islington", oauth_token=os.getenv("MI_GH_AUTH"))
-                        is_core_dev = await util.is_core_dev(mi_gh, session_context["username"])
+                        mi_gh = GitHubAPI(
+                            session,
+                            "miss-islington",
+                            oauth_token=os.getenv("MI_GH_AUTH"),
+                        )
+                        is_core_dev = await util.is_core_dev(
+                            mi_gh, session_context["username"]
+                        )
                         if is_core_dev:
                             try:
 
                                 response = await mi_gh.put(
                                     f"/repos/{pr_repo_full_name}/contents/{path}",
-                                    data=put_data
+                                    data=put_data,
                                 )
                             except gidgethub.BadRequest as bac:
                                 print("BadRequest")
