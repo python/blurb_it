@@ -163,7 +163,7 @@ async def handle_add_blurb_post(request):
                     async with aiohttp.ClientSession() as session:
                         mi_gh = GitHubAPI(
                             session,
-                            "miss-islington",
+                            "python/cpython",
                             oauth_token=os.getenv("MI_GH_AUTH"),
                         )
                         is_core_dev = await util.is_core_dev(
@@ -187,6 +187,7 @@ async def handle_add_blurb_post(request):
                                 ] = f"https://github.com/python/cpython/pull/{pr_number}"
                                 context["pr_number"] = pr_number
                                 context["status"] = "failure"
+                                await gh.post(f"/repos/python/cpython/issues/{pr_number}/comments", data={"body": "Ping!"})
                             else:
                                 print("response")
                                 print(response)
