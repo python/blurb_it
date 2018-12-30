@@ -169,15 +169,17 @@ async def handle_add_blurb_post(request):
                         is_core_dev = await util.is_core_dev(
                             mi_gh, session_context["username"]
                         )
+                        print(f"{session_context['username']} is core dev {is_core_dev} ")
                         if is_core_dev:
                             try:
-
+                                put_data["author"] = {"name": "Miss Islington (bot)", "email": "mariatta.wijaya+miss-islington@gmail.com"}
+                                put_data["committer"] = {"name": "Miss Islington (bot)", "email": "mariatta.wijaya+miss-islington@gmail.com"}
                                 response = await mi_gh.put(
                                     f"/repos/{pr_repo_full_name}/contents/{path}",
                                     data=put_data,
                                 )
                             except gidgethub.BadRequest as bac:
-                                print("BadRequest")
+                                print("BadRequest, error using miss-islington's oauth token")
                                 print(int(bac.status_code))
                                 print(bac)
                                 context[
@@ -202,7 +204,7 @@ async def handle_add_blurb_post(request):
                             f"/repos/{pr_repo_full_name}/contents/{path}", data=put_data
                         )
                     except gidgethub.BadRequest as bac:
-                        print("BadRequest")
+                        print("BadRequest, using blurb-it")
                         print(int(bac.status_code))
                         print(bac)
                         context[
