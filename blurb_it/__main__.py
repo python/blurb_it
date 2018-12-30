@@ -160,7 +160,9 @@ async def handle_add_blurb_post(request):
                     "message": "📜🤖 Added by blurb_it.",
                 }
                 if pr["user"]["login"] != session_context["username"]:
-                    is_core_dev = await util.is_core_dev(gh, session_context["username"])
+                    is_core_dev = await util.is_core_dev(
+                        gh, session_context["username"]
+                    )
                     if is_core_dev:
                         gh = GitHubAPI(
                             session,
