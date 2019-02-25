@@ -35,6 +35,14 @@ async def handle_get(request):
     return response
 
 
+@routes.get("/howto", name="howto")
+async def handle_howto_get(request):
+    """Render a page explaining how to use blurb_it"""
+    context = {}
+    response = aiohttp_jinja2.render_template("howto.html", request, context=context)
+    return response
+
+
 @routes.get("/install", name="install")
 async def handle_install(request):
     """Render a page, ask user to install blurb_it"""
