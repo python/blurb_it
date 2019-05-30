@@ -13,7 +13,12 @@ from gidgethub.aiohttp import GitHubAPI
 
 from blurb_it import error, middleware, util
 
+import sentry_sdk
+
 routes = web.RouteTableDef()
+
+
+sentry_sdk.init(os.environ.get("SENTRY_DSN"))
 
 
 @routes.get("/", name="home")
