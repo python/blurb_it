@@ -4,3 +4,4 @@ gidgethub==3.1.0
 aiohttp-session[secure]==2.7.0
 pyjwt==1.7.1
 cryptography==2.6.1
+sentry-sdk==0.8.0
