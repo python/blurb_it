@@ -1,4 +1,4 @@
 -r requirements.txt
 coverage==4.5.3
-pytest==4.5.0
+pytest==4.6.1
 pytest-aiohttp==0.3.0
