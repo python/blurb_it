@@ -1,0 +1,5 @@
+{
+  "name": "Blurb it!",
+  "description": "Add a news blurb to CPython pull request",
+  "repository": "https://github.com/python/blurb_it"
+}
