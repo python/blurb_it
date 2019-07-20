@@ -58,3 +58,10 @@ Requirements and dependencies
 - gidgethub
 - pyjwt
 - cryptography
+
+
+Running Tests
+=============================
+
+1. Install `pytest` and `pytest-tornasync`
+2. Run `$ pytest tests/test_file.py`
