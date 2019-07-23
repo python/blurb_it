@@ -61,7 +61,10 @@ Requirements and dependencies
 
 
 Running Tests
-=============================
+=============
 
-1. Install `pytest` and `pytest-tornasync`
-2. Run `$ pytest tests/test_file.py`
+1. Install pyhon virtual environment with `$ python3 -m venv venv`.
+2. Activate virtual environment with `$ . venv/bin/activate`.
+3. Install dev-requirements with `(venv)$ pip install -r dev-requirements.txt`.
+4. Run all test with `(venv)$ pytest tests`.
+
