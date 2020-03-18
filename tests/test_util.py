@@ -1,10 +1,23 @@
+import string
+
+import pytest
+
 from blurb_it import util
 from aiohttp.test_utils import make_mocked_request
 from aiohttp_session import (Session, SESSION_KEY)
 
 
 async def test_nonceify():
-    body = "Lorem ipsum dolor amet flannel squid normcore tbh raclette enim" "pabst tumblr wolf farm-to-table bitters. Bitters keffiyeh next" "level proident normcore, et all of +1 90's in blue bottle" "chillwave lorem. Id keffiyeh microdosing cupidatat pour-over" "paleo farm-to-table tumeric sriracha +1. Raclette in poutine," "bushwick kitsch id pariatur hexagon. Thundercats shaman beard," "nulla swag echo park organic microdosing. Hot chicken tbh pop-up" "tacos, asymmetrical tilde veniam bespoke reprehenderit ut do."
+    body = (
+        "Lorem ipsum dolor amet flannel squid normcore tbh raclette enim"
+        "pabst tumblr wolf farm-to-table bitters. Bitters keffiyeh next"
+        "level proident normcore, et all of +1 90's in blue bottle"
+        "chillwave lorem. Id keffiyeh microdosing cupidatat pour-over"
+        "paleo farm-to-table tumeric sriracha +1. Raclette in poutine,"
+        "bushwick kitsch id pariatur hexagon. Thundercats shaman beard,"
+        "nulla swag echo park organic microdosing. Hot chicken tbh pop-up"
+        "tacos, asymmetrical tilde veniam bespoke reprehenderit ut do."
+    )
 
     nonce = await util.nonceify(body)
     assert nonce == "Ps4kgC"
@@ -50,3 +63,25 @@ def mock_request_session():
     request[SESSION_KEY] = session
 
     return request
+
+
+def test_get_csrf_token__not_existing(mocker):
+    mocker.patch("blurb_it.util.create_csrf_token", return_value="foobar")
+
+    assert util.get_csrf_token({}) == "foobar"
+
+
+def test_get_csrf_token__existing():
+
+    assert util.get_csrf_token({"csrf": "foobar"}) == "foobar"
+
+
+def test_create_csrf_token():
+    token = util.create_csrf_token()
+    assert len(token) == 43
+    assert set(token) <= set(string.ascii_letters + string.digits + "-_=")
+
+
+@pytest.mark.parametrize("token, match", [("a", True), ("b", False)])
+def test_compare_csrf_tokens__match(token, match):
+    assert util.compare_csrf_tokens("a", token) is match

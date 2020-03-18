@@ -15,6 +15,7 @@
             {% endif %}
 
             <form action="/add_blurb" method="post" accept-charset="utf-8" enctype="application/x-www-form-urlencoded">
+                <input type="hidden" name="csrf" value="{{ csrf }}">
                 <div class="mb-3">
                     <div class="col form-inline">
                         <label for="bpo_number" class="form-inline">bpo-</label><input type="text" class="form-control form-inline" placeholder="12345" id="bpo_number" name="bpo_number" required>
