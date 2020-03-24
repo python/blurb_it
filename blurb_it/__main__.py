@@ -172,28 +172,71 @@ async def handle_add_blurb_post(request):
                     "path": path,
                     "message": "📜🤖 Added by blurb_it.",
                 }
-                try:
-                    response = await gh.put(
-                        f"/repos/{pr_repo_full_name}/contents/{path}", data=put_data
-                    )
-                except gidgethub.BadRequest as bac:
-                    print("BadRequest")
-                    print(int(bac.status_code))
-                    print(bac)
-                    context[
-                        "pr_url"
-                    ] = f"https://github.com/python/cpython/pull/{pr_number}"
-                    context["pr_number"] = pr_number
-                    context["status"] = "failure"
+                if pr["user"]["login"] != session_context["username"]:
+                    async with aiohttp.ClientSession() as session:
+                        mi_gh = GitHubAPI(
+                            session,
+                            "python/cpython",
+                            oauth_token=os.getenv("MI_GH_AUTH"),
+                        )
+                        is_core_dev = await util.is_core_dev(
+                            mi_gh, session_context["username"]
+                        )
+                        print(f"{session_context['username']} is core dev {is_core_dev} ")
+                        if is_core_dev:
+                            try:
+                                # put_data["author"] = {"name": "Miss Islington (bot)", "email": "mariatta.wijaya+miss-islington@gmail.com"}
+                                # put_data["committer"] = {"name": "Miss Islington (bot)", "email": "mariatta.wijaya+miss-islington@gmail.com"}
+                                response = await mi_gh.put(
+                                    f"/repos/{pr_repo_full_name}/contents/{path}",
+                                    data=put_data,
+                                )
+                            except gidgethub.BadRequest as bac:
+                                print("BadRequest, error using miss-islington's oauth token")
+                                print(int(bac.status_code))
+                                print(bac)
+                                context[
+                                    "pr_url"
+                                ] = f"https://github.com/python/cpython/pull/{pr_number}"
+                                context["pr_number"] = pr_number
+                                context["status"] = "failure"
+                                await mi_gh.post(f"/repos/python/cpython/issues/{pr_number}/comments", data={"body": "Ping!"})
+                            else:
+                                print("response")
+                                print(response)
+                                commit_url = response["commit"]["html_url"]
+                                context["commit_url"] = commit_url
+                                context["path"] = response["content"]["path"]
+                                context[
+                                    "pr_url"
+                                ] = f"https://github.com/python/cpython/pull/{pr_number}"
+                                context["pr_number"] = pr_number
+                                context["status"] = "success"
                 else:
-                    commit_url = response["commit"]["html_url"]
-                    context["commit_url"] = commit_url
-                    context["path"] = response["content"]["path"]
-                    context[
-                        "pr_url"
-                    ] = f"https://github.com/python/cpython/pull/{pr_number}"
-                    context["pr_number"] = pr_number
-                    context["status"] = "success"
+                    try:
+                        response = await gh.put(
+                            f"/repos/{pr_repo_full_name}/contents/{path}", data=put_data
+                        )
+                    except gidgethub.BadRequest as bac:
+                        print("BadRequest, using blurb-it")
+                        print(int(bac.status_code))
+                        print(bac)
+                        context[
+                            "pr_url"
+                        ] = f"https://github.com/python/cpython/pull/{pr_number}"
+                        context["pr_number"] = pr_number
+                        context["status"] = "failure"
+                    else:
+                        print("response")
+                        print(response)
+                        commit_url = response["commit"]["html_url"]
+                        context["commit_url"] = commit_url
+                        context["path"] = response["content"]["path"]
+                        context[
+                            "pr_url"
+                        ] = f"https://github.com/python/cpython/pull/{pr_number}"
+                        context["pr_number"] = pr_number
+                        context["status"] = "success"
 
         template = "add_blurb.html"
         response = aiohttp_jinja2.render_template(template, request, context=context)

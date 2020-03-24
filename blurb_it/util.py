@@ -3,6 +3,8 @@ import hashlib
 import time
 
 import jwt
+import gidgethub
+
 from aiohttp_session import get_session
 
 from blurb_it import error
@@ -80,3 +82,26 @@ async def get_installation_access_token(gh, jwt, installation_id):
     # }
 
     return response
+
+
+async def is_core_dev(gh, username):
+    """Check if the user is a CPython core developer."""
+    org_teams = "/orgs/python/teams"
+    team_name = "python core"
+    async for team in gh.getiter(org_teams):
+        if team["name"].lower() == team_name:
+            break
+    else:
+        raise ValueError(f"{team_name!r} not found at {org_teams!r}")
+    # The 'teams' object only provides a URL to a deprecated endpoint,
+    # so manually construct the URL to the non-deprecated team membership
+    # endpoint.
+    membership_url = f"/teams/{team['id']}/memberships/{username}"
+    try:
+        await gh.getitem(membership_url)
+    except gidgethub.BadRequest as exc:
+        if exc.status_code == 404:
+            return False
+        raise
+    else:
+        return True
