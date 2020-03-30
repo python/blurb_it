@@ -1,4 +1,6 @@
 from blurb_it import util
+from aiohttp.test_utils import make_mocked_request
+from aiohttp_session import (Session, SESSION_KEY)
 
 
 async def test_nonceify():
@@ -24,3 +26,27 @@ async def test_get_misc_news_filename():
 
     assert path.startswith("Misc/NEWS.d/next/Library/")
     assert path.endswith(".bpo-123.Ps4kgC.rst")
+
+
+async def test_has_session():
+    request = mock_request_session()
+
+    has_session = await util.has_session(request)
+    assert has_session
+
+
+async def test_session_context():
+    request = mock_request_session()
+
+    session_context = await util.get_session_context(request)
+    assert session_context == {"username": "blurb", "token": "124"}
+
+
+def mock_request_session():
+    request = make_mocked_request("GET", "/")
+    session = Session("identity", data=None, new=False)
+    session["token"] = "124"
+    session["username"] = "blurb"
+    request[SESSION_KEY] = session
+
+    return request
