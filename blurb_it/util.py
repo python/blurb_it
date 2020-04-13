@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import time
+import secrets
 
 import jwt
 from aiohttp_session import get_session
@@ -33,6 +34,22 @@ async def get_session_context(request, context=None):
 async def has_session(request):
     request_session = await get_session(request)
     return request_session.get("username") and request_session.get("token")
+
+
+def get_csrf_token(session):
+    try:
+        return session["csrf"]
+    except KeyError:
+        session["csrf"] = csrf = create_csrf_token()
+        return csrf
+
+
+def create_csrf_token():
+    return secrets.token_urlsafe(32)
+
+
+def compare_csrf_tokens(token_a, token_b):
+    return secrets.compare_digest(token_a, token_b)
 
 
 def get_jwt(app_id, private_key):

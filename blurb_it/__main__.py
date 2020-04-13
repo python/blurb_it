@@ -65,8 +65,8 @@ async def handle_install(request):
 async def handle_add_blurb_get(request):
     """Render a page with a textbox and submit button."""
     token = request.rel_url.query.get("code")
-
-    context = {}
+    request_session = await get_session(request)
+    context = {"csrf": util.get_csrf_token(session=request_session)}
 
     if await util.has_session(request):
         context.update(await util.get_session_context(request, context))
@@ -96,7 +96,6 @@ async def handle_add_blurb_get(request):
                 gh = GitHubAPI(session, "blurb-it", oauth_token=access_token)
                 response = await gh.getitem("/user")
                 login_name = response["login"]
-                request_session = await get_session(request)
                 request_session["username"] = login_name
                 request_session["token"] = access_token
                 context["username"] = request_session["username"]
@@ -132,7 +131,15 @@ def get_access_token(token_str):
 async def handle_add_blurb_post(request):
     if await util.has_session(request):
         session_context = await util.get_session_context(request)
+        request_session = await get_session(request)
         data = await request.post()
+
+        csrf_form = data.get("csrf", "").strip()
+        if not util.compare_csrf_tokens(
+            csrf_form, util.get_csrf_token(session=request_session)
+        ):
+            raise web.HTTPForbidden(reason="Invalid CSRF token. Please retry.")
+
         bpo_number = data.get("bpo_number", "").strip()
         section = data.get("section", "").strip()
         news_entry = data.get("news_entry", "").strip()
