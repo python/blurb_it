@@ -5,6 +5,7 @@ import secrets
 
 import jwt
 from aiohttp_session import get_session
+from gidgethub import BadRequest
 
 from blurb_it import error
 
@@ -66,18 +67,13 @@ def get_jwt(app_id, private_key):
 
 
 async def get_installation(gh, jwt, username):
-
-    async for installation in gh.getiter(
-        "/app/installations",
-        jwt=jwt,
-        accept="application/vnd.github.machine-man-preview+json",
-    ):
-        if installation["account"]["login"] == username:
-            return installation
-
-    raise error.InstallationNotFound(
-        f"Can't find installation by that user: {username}"
-    )
+    try:
+        return await gh.getitem(f"/users/{username}/installation", jwt=jwt)
+    except BadRequest:
+        # will raise a 401 if no installation for this user
+        raise error.InstallationNotFound(
+            f"Can't find installation by that user: {username}"
+        )
 
 
 async def get_installation_access_token(gh, jwt, installation_id):
