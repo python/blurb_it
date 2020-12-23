@@ -2,6 +2,6 @@ aiohttp==3.7.3
 aiohttp-jinja2==1.4.2
 gidgethub==4.2.0
 aiohttp-session[secure]==2.9.0
-pyjwt==1.7.1
+pyjwt==2.0.0
 cryptography==3.3.1
 sentry-sdk==0.19.5
