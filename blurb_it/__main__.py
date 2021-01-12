@@ -10,6 +10,7 @@ from aiohttp_session import get_session, session_middleware
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 from gidgethub.aiohttp import GitHubAPI
+from gidgethub.apps import get_jwt, get_installation_access_token
 
 from blurb_it import error, middleware, util
 
@@ -74,7 +75,7 @@ async def handle_add_blurb_get(request):
 
             gh = GitHubAPI(session, context["username"])
 
-            jwt = util.get_jwt(os.getenv("GH_APP_ID"), os.getenv("GH_PRIVATE_KEY"))
+            jwt = get_jwt(app_id=os.getenv("GH_APP_ID"), private_key=os.getenv("GH_PRIVATE_KEY"))
             try:
                 await util.get_installation(gh, jwt, context["username"])
             except error.InstallationNotFound:
@@ -102,7 +103,7 @@ async def handle_add_blurb_get(request):
 
                 gh = GitHubAPI(session, context["username"])
 
-                jwt = util.get_jwt(os.getenv("GH_APP_ID"), os.getenv("GH_PRIVATE_KEY"))
+                jwt = get_jwt(app_id=os.getenv("GH_APP_ID"), private_key=os.getenv("GH_PRIVATE_KEY"))
                 try:
                     await util.get_installation(gh, jwt, context["username"])
                 except error.InstallationNotFound:
@@ -152,7 +153,7 @@ async def handle_add_blurb_post(request):
         async with aiohttp.ClientSession() as session:
             gh = GitHubAPI(session, session_context["username"])
 
-            jwt = util.get_jwt(os.getenv("GH_APP_ID"), os.getenv("GH_PRIVATE_KEY"))
+            jwt = get_jwt(app_id=os.getenv("GH_APP_ID"), private_key=os.getenv("GH_PRIVATE_KEY"))
             try:
                 installation = await util.get_installation(
                     gh, jwt, session_context["username"]
@@ -160,8 +161,8 @@ async def handle_add_blurb_post(request):
             except error.InstallationNotFound:
                 return web.HTTPFound(location=request.app.router["install"].url_for())
             else:
-                access_token = await util.get_installation_access_token(
-                    gh, jwt=jwt, installation_id=installation["id"]
+                access_token = await get_installation_access_token(
+                    gh, installation_id=installation["id"], app_id=os.getenv("GH_APP_ID"), private_key=os.getenv("GH_PRIVATE_KEY")
                 )
 
                 gh = GitHubAPI(
