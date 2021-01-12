@@ -62,6 +62,7 @@ def get_jwt(app_id, private_key):
     bearer_token = jwt.encode(payload, private_key, algorithm="RS256")
     return bearer_token
 
+
 async def get_installation(gh, jwt, username):
 
     async for installation in gh.getiter(
