@@ -59,9 +59,7 @@ def get_jwt(app_id, private_key):
         "exp": int(time.time()) + (10 * 60),
         "iss": app_id,
     }
-    encoded = jwt.encode(payload, private_key, algorithm="RS256")
-    bearer_token = encoded.decode("utf-8")
-
+    bearer_token = jwt.encode(payload, private_key, algorithm="RS256")
     return bearer_token
 
 
