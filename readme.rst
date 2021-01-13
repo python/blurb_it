@@ -55,8 +55,8 @@ Requirements and dependencies
 - Python 3.7+
 - aiohttp
 - aiohttp-jinja2
-- gidgethub
-- pyjwt
+- gidgethub >= 5.0.0
+- pyjwt >= 2.0.0
 - cryptography
 
 

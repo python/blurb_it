@@ -3,7 +3,6 @@ import hashlib
 import time
 import secrets
 
-import jwt
 from aiohttp_session import get_session
 
 from blurb_it import error
@@ -52,17 +51,6 @@ def compare_csrf_tokens(token_a, token_b):
     return secrets.compare_digest(token_a, token_b)
 
 
-def get_jwt(app_id, private_key):
-
-    payload = {
-        "iat": int(time.time()),
-        "exp": int(time.time()) + (10 * 60),
-        "iss": app_id,
-    }
-    bearer_token = jwt.encode(payload, private_key, algorithm="RS256")
-    return bearer_token
-
-
 async def get_installation(gh, jwt, username):
 
     async for installation in gh.getiter(
@@ -76,22 +64,3 @@ async def get_installation(gh, jwt, username):
     raise error.InstallationNotFound(
         f"Can't find installation by that user: {username}"
     )
-
-
-async def get_installation_access_token(gh, jwt, installation_id):
-    # doc: https: // developer.github.com/v3/apps/#create-a-new-installation-token
-
-    access_token_url = f"app/installations/{installation_id}/access_tokens"
-    response = await gh.post(
-        access_token_url,
-        data=b"",
-        jwt=jwt,
-        accept="application/vnd.github.machine-man-preview+json",
-    )
-    # example response
-    # {
-    #   "token": "v1.1f699f1069f60xxx",
-    #   "expires_at": "2016-07-11T22:14:10Z"
-    # }
-
-    return response
