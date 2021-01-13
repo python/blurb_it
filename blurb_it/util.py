@@ -51,8 +51,6 @@ def compare_csrf_tokens(token_a, token_b):
     return secrets.compare_digest(token_a, token_b)
 
 
-
-
 async def get_installation(gh, jwt, username):
 
     async for installation in gh.getiter(
@@ -66,4 +64,3 @@ async def get_installation(gh, jwt, username):
     raise error.InstallationNotFound(
         f"Can't find installation by that user: {username}"
     )
-
