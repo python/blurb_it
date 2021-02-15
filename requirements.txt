@@ -2,4 +2,4 @@ aiohttp==3.7.3
 aiohttp-jinja2==1.4.2
 gidgethub==5.0.0
 aiohttp-session[secure]==2.9.0
-sentry-sdk==0.19.5
+sentry-sdk==0.20.1
