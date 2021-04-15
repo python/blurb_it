@@ -7,6 +7,12 @@ python:
 - nightly
 dist: xenial
 
+
+matrix:
+  allow_failures:
+  - python: nightly
+    dist: xenial
+
 before_install:
   - python3 -m pip install coverage
 install:
