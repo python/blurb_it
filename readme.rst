@@ -4,11 +4,12 @@ blurb_it
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
-.. image:: https://travis-ci.com/python/blurb_it.svg?branch=master
-    :target: https://travis-ci.com/python/blurb_it
+.. image:: https://github.com/python/blurb_it/actions/workflows/ci.yml/badge.svg?event=push
+    :target: https://github.com/python/blurb_it/actions
 
 .. image:: https://codecov.io/gh/python/blurb_it/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/python/blurb_it
+
 
 ``blurb add`` over the internet.
 
