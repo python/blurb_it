@@ -29,7 +29,6 @@ jobs:
       - run: python3 -m pip install coverage
       - run: python3 -m pip install -U -r dev-requirements.txt
       - run: python3 -m coverage run --branch -m pytest tests/
-      - run: nox --session tests-${{ matrix.python-version }}
       - uses: codecov/codecov-action@v1
         if: always()
         with:
