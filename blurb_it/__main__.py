@@ -148,7 +148,7 @@ async def handle_add_blurb_post(request):
 
         bpo_number = data.get("bpo_number", "").strip()
         section = data.get("section", "").strip()
-        news_entry = data.get("news_entry", "").strip()
+        news_entry = data.get("news_entry", "").strip() + "\n"
         path = await util.get_misc_news_filename(bpo_number, section, news_entry)
         pr_number = data.get("pr_number", "").strip()
 
