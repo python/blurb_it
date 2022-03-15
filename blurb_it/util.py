@@ -8,10 +8,10 @@ from aiohttp_session import get_session
 from blurb_it import error
 
 
-async def get_misc_news_filename(bpo, section, body):
+async def get_misc_news_filename(issue_number, section, body):
     date = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
     nonce = await nonceify(body)
-    path = f"Misc/NEWS.d/next/{section}/{date}.bpo-{bpo}.{nonce}.rst"
+    path = f"Misc/NEWS.d/next/{section}/{date}.gh-{issue_number}.{nonce}.rst"
     return path
 
 
@@ -57,7 +57,7 @@ async def get_installation(gh, jwt, username):
         "/app/installations",
         jwt=jwt,
         accept="application/vnd.github.machine-man-preview+json",
-    ):
+    ):  # pragma: no cover
         if installation["account"]["login"] == username:
             return installation
 
