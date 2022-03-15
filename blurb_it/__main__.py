@@ -30,6 +30,7 @@ async def handle_get(request):
     request_session = await get_session(request)
     context = {}
     context["client_id"] = os.environ.get("GH_CLIENT_ID")
+    context["app_url"] = os.environ.get("APP_URL")
     if request_session.get("username") and request_session.get("token"):
         context["username"] = request_session["username"]
         location = request.app.router["add_blurb"].url_for()
