@@ -54,7 +54,7 @@ async def test_get_misc_news_filename():
     )
 
     assert path.startswith("Misc/NEWS.d/next/Library/")
-    assert path.endswith(".gh-123.Ps4kgC.rst")
+    assert path.endswith(".gh-issue-123.Ps4kgC.rst")
 
 
 async def test_has_session():
