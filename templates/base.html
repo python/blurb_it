@@ -20,7 +20,7 @@
             <h5 class="my-0 mr-md-auto font-weight-normal"><a href="/">📜🤖 Blurb it!</a></h5>
             <h5 class="my-0 mr-md-auto font-weight-normal"><a href="/howto">How do I use Blurb It?</a></h5>
             {% if not username %}
-                <a class="btn btn-outline-primary btn-social btn-github" href="https://github.com/login/oauth/authorize?client_id={{ client_id }}&scope=repo&redirect_uri=https://blurb-it.herokuapp.com/add_blurb">
+                <a class="btn btn-outline-primary btn-social btn-github" href="https://github.com/login/oauth/authorize?client_id={{ client_id }}&scope=repo&redirect_uri=https://{{ app_url }}/add_blurb">
             <span class="fa fa-github"></span>
             Sign in with GitHub
             </a>

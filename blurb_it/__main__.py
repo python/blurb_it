@@ -30,6 +30,7 @@ async def handle_get(request):
     request_session = await get_session(request)
     context = {}
     context["client_id"] = os.environ.get("GH_CLIENT_ID")
+    context["app_url"] = os.environ.get("APP_URL")
     if request_session.get("username") and request_session.get("token"):
         context["username"] = request_session["username"]
         location = request.app.router["add_blurb"].url_for()
@@ -146,10 +147,10 @@ async def handle_add_blurb_post(request):
         ):
             raise web.HTTPForbidden(reason="Invalid CSRF token. Please retry.")
 
-        bpo_number = data.get("bpo_number", "").strip()
+        issue_number = data.get("issue_number", "").strip()
         section = data.get("section", "").strip()
         news_entry = data.get("news_entry", "").strip() + "\n"
-        path = await util.get_misc_news_filename(bpo_number, section, news_entry)
+        path = await util.get_misc_news_filename(issue_number, section, news_entry)
         pr_number = data.get("pr_number", "").strip()
 
         context = {}

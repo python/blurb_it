@@ -18,15 +18,15 @@
                 <input type="hidden" name="csrf" value="{{ csrf }}">
                 <div class="mb-3">
                     <div class="col form-inline">
-                        <label for="bpo_number" class="form-inline">bpo-</label><input type="text" class="form-control form-inline" placeholder="12345" id="bpo_number" name="bpo_number" required>
+                        <label for="issue_number" class="form-inline">GH Issue #</label><input type="text" class="form-control form-inline" placeholder="12345" id="issue_number" name="issue_number" required>
                     </div>
                     <div class="col form-inline">
-                        <small id="bpo-help" class="form-text text-muted">The bugs.python.org issue number.</small>
+                        <small id="issue_number-help" class="form-text text-muted">The CPython GitHub issue number.</small>
                     </div>
                 </div>
                 <div class="mb-3">
                     <div class="col form-inline">
-                        <label for="pr_number" class="form-inline">GH-</label><input type="text" class="form-control form-inline" placeholder="12345" id="pr_number" name="pr_number" required>
+                        <label for="pr_number" class="form-inline">GH Pull Request #</label><input type="text" class="form-control form-inline" placeholder="12345" id="pr_number" name="pr_number" required>
                     </div>
                     <div class="col form-inline">
                         <small id="gh-help" class="form-text text-muted">The CPython GitHub pull request number.</small>
@@ -54,7 +54,7 @@
                 <div class="mb-3">
                     <textarea class="form-control" id="news_entry" name="news_entry" rows="10" placeholder="Write your Misc/NEWS entry below.
 It should be a simple ReST paragraph.
-Don't start with '- Issue #<n>: ' or '- bpo-<n>: ' or that sort of stuff." required></textarea>
+Don't start with '- Issue #<n>: ' or '- gh-issue-<n>: ' or that sort of stuff." required></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary mb-2">📜🤖 blurb it!</button>
             </form>
