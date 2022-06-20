@@ -46,6 +46,8 @@ async def handle_get(request):
 async def handle_howto_get(request):
     """Render a page explaining how to use blurb_it"""
     context = {}
+    context["client_id"] = os.environ.get("GH_CLIENT_ID")
+    context["app_url"] = os.environ.get("APP_URL")
     response = aiohttp_jinja2.render_template("howto.html", request, context=context)
     return response
 
@@ -56,6 +58,8 @@ async def handle_install(request):
     # data = request.query_string
     # data2 = await request.rel_url.query['']
     context = {}
+    context["client_id"] = os.environ.get("GH_CLIENT_ID")
+    context["app_url"] = os.environ.get("APP_URL")
     if await util.has_session(request):
         context.update(await util.get_session_context(request, context))
 
