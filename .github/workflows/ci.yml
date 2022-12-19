@@ -28,6 +28,8 @@ jobs:
       - name: Tests
         run: |
           python3 -m coverage run --branch -m pytest tests/
+          python3 -m coverage xml
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         if: always()
