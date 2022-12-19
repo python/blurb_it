@@ -7,9 +7,8 @@ blurb_it
 .. image:: https://github.com/python/blurb_it/actions/workflows/ci.yml/badge.svg?event=push
     :target: https://github.com/python/blurb_it/actions
 
-.. image:: https://codecov.io/gh/python/blurb_it/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/python/blurb_it/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/python/blurb_it
-
 
 ``blurb add`` over the internet.
 
