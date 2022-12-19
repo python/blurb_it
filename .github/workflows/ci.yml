@@ -33,6 +33,7 @@ jobs:
       - name: Tests
         run: |
           python3 -m coverage run --branch -m pytest tests/
+          python3 -m coverage report
           python3 -m coverage xml
 
       - name: Upload coverage
