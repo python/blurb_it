@@ -27,7 +27,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python3 -m pip install coverage
           python3 -m pip install -U -r dev-requirements.txt
 
       - name: Tests
