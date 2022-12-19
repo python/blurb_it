@@ -2,7 +2,7 @@ blurb_it
 --------
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/ambv/black
+    :target: https://github.com/psf/black
 
 .. image:: https://github.com/python/blurb_it/actions/workflows/ci.yml/badge.svg?event=push
     :target: https://github.com/python/blurb_it/actions
@@ -19,8 +19,9 @@ About
 📜🤖 blurb-it allows you to add a misc/news file to your own
 `CPython <https://github.com/python/cpython>`_ pull request.
 
-Misc/News file `is needed <https://devguide.python.org/committing/#what-s-new-and-news-entries>`_ for
-almost all non-trivial changes to CPython.
+A Misc/News file `is needed
+<https://devguide.python.org/core-developers/committing/index.html#updating-news-and-what-s-new-in-python>`_
+for almost all non-trivial changes to CPython.
 
 To use blurb-it, you must be logged in to GitHub.
 
