@@ -1,17 +1,12 @@
 name: Tests
 
-on:
-  pull_request:
-  push:
-    branches: main
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   test:
-    name: test w/ Python ${{ matrix.python-version }}
-
     runs-on: ubuntu-latest
-
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12-dev"]
 
@@ -26,13 +21,16 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python3 -m pip install coverage
-      - run: python3 -m pip install -U -r dev-requirements.txt
-      - run: python3 -m coverage run --branch -m pytest tests/
-      - uses: codecov/codecov-action@v3
+      - name: Install dependencies
+        run: |
+          python3 -m pip install coverage
+          python3 -m pip install -U -r dev-requirements.txt
+      - name: Tests
+        run: |
+          python3 -m coverage run --branch -m pytest tests/
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
         if: always()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
-    
-
