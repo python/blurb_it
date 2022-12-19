@@ -64,7 +64,7 @@ Requirements and dependencies
 Running tests
 =============
 
-1. Install a Python virtual environment with ``$ python3 -m venv venv``
+1. Create a Python virtual environment with ``$ python3 -m venv venv``
 2. Activate the virtual environment with ``$ . venv/bin/activate``
 3. Install dev requirements with ``(venv)$ pip install -r dev-requirements.txt``
 4. Run all tests with ``(venv)$ pytest tests``
