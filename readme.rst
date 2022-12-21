@@ -18,7 +18,7 @@ About
 📜🤖 blurb-it allows you to add a misc/news file to your own
 `CPython <https://github.com/python/cpython>`_ pull request.
 
-A Misc/News file `is needed
+A ``Misc/NEWS.d`` file `is needed
 <https://devguide.python.org/core-developers/committing/index.html#updating-news-and-what-s-new-in-python>`_
 for almost all non-trivial changes to CPython.
 
