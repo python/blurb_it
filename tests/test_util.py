@@ -57,6 +57,27 @@ async def test_get_misc_news_filename():
     assert path.endswith(".gh-issue-123.Ps4kgC.rst")
 
 
+async def test_get_misc_news_filename_sections_with_dashes():
+    path = await util.get_misc_news_filename(
+        issue_number=123,
+        section="Core-and-Builtins",
+        body="Lorem ipsum dolor amet flannel squid normcore tbh raclette enim",
+    )
+
+    assert path.startswith("Misc/NEWS.d/next/Core-and-Builtins/")
+
+
+async def test_get_misc_news_filename_sections_with_space():
+    with pytest.raises(
+        ValueError, match="Use hyphens not spaces in section name: Core and Builtins"
+    ):
+        path = await util.get_misc_news_filename(
+            issue_number=123,
+            section="Core and Builtins",
+            body="Lorem ipsum dolor amet flannel squid normcore tbh raclette enim",
+        )
+
+
 async def test_has_session():
     request = mock_request_session()
 
