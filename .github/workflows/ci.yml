@@ -30,7 +30,7 @@ jobs:
             requirements.txt
 
       - name: Install dependencies (3.12)
-        if: matrix.python-version != '3.12.0-alpha.4'
+        if: matrix.python-version == '3.12.0-alpha.4'
         run: |
           # TODO remove when 3.12.0-alpha.4 pin removed.
           # Need to install coverage.py from source because its
@@ -38,7 +38,7 @@ jobs:
           python3 -m pip install -U -r dev-requirements.txt --no-binary :all:
 
       - name: Install dependencies (<3.12)
-        if: matrix.python-version == '3.12.0-alpha.4'
+        if: matrix.python-version != '3.12.0-alpha.4'
         run: |
           python3 -m pip install -U -r dev-requirements.txt
 
