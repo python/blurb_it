@@ -60,7 +60,7 @@ async def test_get_misc_news_filename():
 async def test_get_misc_news_filename_sections_with_dashes():
     path = await util.get_misc_news_filename(
         issue_number=123,
-        section="Core-and-Builtins",
+        section="Core_and_Builtins",
         body="Lorem ipsum dolor amet flannel squid normcore tbh raclette enim",
     )
 
@@ -69,9 +69,10 @@ async def test_get_misc_news_filename_sections_with_dashes():
 
 async def test_get_misc_news_filename_sections_with_space():
     with pytest.raises(
-        ValueError, match="Use hyphens not spaces in section name: Core and Builtins"
+        ValueError,
+        match="Use underscores not spaces in section name: Core and Builtins",
     ):
-        path = await util.get_misc_news_filename(
+        await util.get_misc_news_filename(
             issue_number=123,
             section="Core and Builtins",
             body="Lorem ipsum dolor amet flannel squid normcore tbh raclette enim",
