@@ -1,6 +1,4 @@
 -r requirements.txt
-# TODO Pin coverage==7.3.0 while testing Python 3.12 alpha 4,
-# to avoid installing an ABI-incompatible wheel built against a beta.
 coverage==7.3.0
 pytest==7.4.0
 pytest-aiohttp==1.0.4
