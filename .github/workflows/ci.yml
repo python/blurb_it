@@ -24,18 +24,17 @@ jobs:
           allow-prereleases: true
           cache: pip
           cache-dependency-path: |
+            .github/workflows/ci.yml
             dev-requirements.txt
             requirements.txt
 
       - name: Install dependencies
         run: |
-          python3 -m pip install -U -r dev-requirements.txt
+          python3 -m pip install -U coverage tox
 
       - name: Tests
         run: |
-          python3 -m coverage run -m pytest
-          python3 -m coverage report
-          python3 -m coverage xml
+          tox -e py
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
