@@ -35,8 +35,6 @@ jobs:
       - name: Tests
         run: |
           tox -e py
-          python3 -m coverage report
-          python3 -m coverage xml
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
