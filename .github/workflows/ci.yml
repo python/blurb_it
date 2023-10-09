@@ -12,10 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: add back 3.12 when the aiohttp issue is fixed, see
-        # https://github.com/python/blurb_it/pull/330#issuecomment-1449496275
-        # and https://github.com/aio-libs/aiohttp/issues/7229
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v3
