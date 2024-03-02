@@ -4,6 +4,8 @@ updates:
   directory: "/"
   schedule:
     interval: monthly
+    assignees:
+      - "ezio-melotti"
     groups:
       pip:
         patterns:
@@ -26,6 +28,8 @@ updates:
     directory: "/"
     schedule:
       interval: monthly
+    assignees:
+      - "ezio-melotti"
     groups:
       actions:
         patterns:
