@@ -4,7 +4,12 @@ updates:
   directory: "/"
   schedule:
     interval: monthly
-  open-pull-requests-limit: 10
+    assignees:
+      - "ezio-melotti"
+    groups:
+      pip:
+        patterns:
+          - "*"
   ignore:
   - dependency-name: sentry-sdk
     versions:
@@ -18,3 +23,14 @@ updates:
   - dependency-name: pytest
     versions:
     - 6.2.2
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: monthly
+    assignees:
+      - "ezio-melotti"
+    groups:
+      actions:
+        patterns:
+          - "*"
