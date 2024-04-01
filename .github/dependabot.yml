@@ -1,28 +1,15 @@
 version: 2
 updates:
-- package-ecosystem: pip
-  directory: "/"
-  schedule:
-    interval: monthly
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: monthly
     assignees:
       - "ezio-melotti"
     groups:
       pip:
         patterns:
           - "*"
-  ignore:
-  - dependency-name: sentry-sdk
-    versions:
-    - 0.20.0
-    - 0.20.1
-    - 0.20.2
-    - 0.20.3
-  - dependency-name: coverage
-    versions:
-    - "5.4"
-  - dependency-name: pytest
-    versions:
-    - 6.2.2
 
   - package-ecosystem: "github-actions"
     directory: "/"
