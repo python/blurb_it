@@ -37,7 +37,9 @@ jobs:
           tox -e py
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v4.1.1
+        uses: codecov/codecov-action@v4
         if: always()
         with:
           file: ./coverage.xml
+        env:
+          token: ${{ secrets.CODECOV_ORG_TOKEN }}
