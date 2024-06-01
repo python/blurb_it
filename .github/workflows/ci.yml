@@ -37,7 +37,7 @@ jobs:
           tox -e py
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3.1.5
+        uses: codecov/codecov-action@v4.4.1
         if: always()
         with:
           file: ./coverage.xml
