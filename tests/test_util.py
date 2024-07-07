@@ -64,7 +64,7 @@ async def test_get_misc_news_filename_sections_with_dashes():
         body="Lorem ipsum dolor amet flannel squid normcore tbh raclette enim",
     )
 
-    assert path.startswith("Misc/NEWS.d/next/Core-and-Builtins/")
+    assert path.startswith("Misc/NEWS.d/next/Core_and_Builtins/")
 
 
 async def test_get_misc_news_filename_sections_with_space():
