@@ -12,35 +12,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO replace 3.12.0-alpha.4 with 3.12-dev when
-        # aiohttp, frozenlist and yarl support alpha 5+
-        # https://github.com/python/blurb_it/pull/330#issuecomment-1449496275
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12.0-alpha.4"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
           cache: pip
           cache-dependency-path: |
+            .github/workflows/ci.yml
             dev-requirements.txt
             requirements.txt
 
       - name: Install dependencies
         run: |
-          python3 -m pip install -U -r dev-requirements.txt
+          python3 -m pip install -U coverage tox
 
       - name: Tests
         run: |
-          python3 -m coverage run --branch -m pytest tests/
-          python3 -m coverage report
-          python3 -m coverage xml
+          tox -e py
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        if: always()
+        uses: codecov/codecov-action@v4
         with:
-          file: ./coverage.xml
+          flags: ${{ matrix.python-version }}
+          name: Python ${{ matrix.python-version }}
+          token: ${{ secrets.CODECOV_ORG_TOKEN }}
