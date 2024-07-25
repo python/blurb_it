@@ -9,6 +9,8 @@ from blurb_it import error
 
 
 async def get_misc_news_filename(issue_number, section, body):
+    if " " in section:
+        raise ValueError(f"Use underscores not spaces in section name: {section}")
     date = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
     nonce = await nonceify(body)
     path = f"Misc/NEWS.d/next/{section}/{date}.gh-issue-{issue_number}.{nonce}.rst"
