@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import os
 
@@ -5,16 +7,17 @@ import aiohttp
 import aiohttp_jinja2
 import gidgethub
 import jinja2
+import sentry_sdk
 from aiohttp import web
+from aiohttp.web_request import Request
+from aiohttp.web_response import Response
 from aiohttp_session import get_session, session_middleware
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 from gidgethub.aiohttp import GitHubAPI
-from gidgethub.apps import get_jwt, get_installation_access_token
+from gidgethub.apps import get_installation_access_token, get_jwt
 
 from blurb_it import error, middleware, util
-
-import sentry_sdk
 
 routes = web.RouteTableDef()
 
@@ -23,7 +26,7 @@ sentry_sdk.init(os.environ.get("SENTRY_DSN"))
 
 
 @routes.get("/", name="home")
-async def handle_get(request):
+async def handle_get(request: Request) -> Response:
     """Render a page with a textbox and submit button."""
     # data = request.query_string
     # data2 = await request.rel_url.query['']
@@ -43,7 +46,7 @@ async def handle_get(request):
 
 
 @routes.get("/howto", name="howto")
-async def handle_howto_get(request):
+async def handle_howto_get(request: Request) -> Response:
     """Render a page explaining how to use blurb_it"""
     context = {}
     context["client_id"] = os.environ.get("GH_CLIENT_ID")
@@ -53,7 +56,7 @@ async def handle_howto_get(request):
 
 
 @routes.get("/install", name="install")
-async def handle_install(request):
+async def handle_install(request: Request) -> Response:
     """Render a page, ask user to install blurb_it"""
     # data = request.query_string
     # data2 = await request.rel_url.query['']
@@ -68,7 +71,7 @@ async def handle_install(request):
 
 
 @routes.get("/add_blurb", name="add_blurb")
-async def handle_add_blurb_get(request):
+async def handle_add_blurb_get(request: Request) -> Response:
     """Render a page with a textbox and submit button."""
     token = request.rel_url.query.get("code")
     request_session = await get_session(request)
@@ -130,7 +133,7 @@ async def handle_add_blurb_get(request):
     return response
 
 
-def get_access_token(token_str):
+def get_access_token(token_str: str) -> str | None:
     for token in token_str.split("&"):
         token_split = token.split("=")
         if token_split[0] == "access_token":
@@ -139,7 +142,7 @@ def get_access_token(token_str):
 
 
 @routes.post("/add_blurb")
-async def handle_add_blurb_post(request):
+async def handle_add_blurb_post(request: Request) -> Response:
     if await util.has_session(request):
         session_context = await util.get_session_context(request)
         request_session = await get_session(request)
