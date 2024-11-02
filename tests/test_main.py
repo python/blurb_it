@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import base64
-import os
+import pathlib
 
 import aiohttp_jinja2
 import jinja2
@@ -26,7 +26,7 @@ def create_app() -> web.Application:
     )
 
     aiohttp_jinja2.setup(
-        app, loader=jinja2.FileSystemLoader(os.path.join(os.getcwd(), "templates"))
+        app, loader=jinja2.FileSystemLoader(pathlib.Path.cwd() / "templates")
     )
     return app
 
