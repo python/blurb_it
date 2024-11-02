@@ -2,6 +2,9 @@ name: Tests
 
 on: [push, pull_request, workflow_dispatch]
 
+permissions:
+  contents: read
+
 env:
   FORCE_COLOR: 1
 
@@ -16,25 +19,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
-          cache: pip
+
+      - name: Install uv
+        uses: hynek/setup-cached-uv@v2
+        with:
           cache-dependency-path: |
             .github/workflows/ci.yml
             dev-requirements.txt
             requirements.txt
 
-      - name: Install dependencies
+      - name: Tox tests
         run: |
-          python3 -m pip install -U coverage tox
-
-      - name: Tests
-        run: |
-          tox -e py
+          uvx --with tox-uv tox -e py
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
