@@ -18,7 +18,7 @@
                 <input type="hidden" name="csrf" value="{{ csrf }}">
                 <div class="mb-3">
                     <div class="col form-inline">
-                        <label for="issue_number" class="form-inline">GH Issue #</label><input type="text" class="form-control form-inline" placeholder="12345" id="issue_number" name="issue_number" required>
+                        <label for="issue_number" class="form-inline">GH Issue #</label><input type="text" class="form-control form-inline" pattern="^\d{1,6}$" maxlength="6" placeholder="12345" id="issue_number" name="issue_number" required>
                     </div>
                     <div class="col form-inline">
                         <small id="issue_number-help" class="form-text text-muted">The CPython GitHub issue number.</small>
@@ -26,7 +26,7 @@
                 </div>
                 <div class="mb-3">
                     <div class="col form-inline">
-                        <label for="pr_number" class="form-inline">GH Pull Request #</label><input type="text" class="form-control form-inline" placeholder="12345" id="pr_number" name="pr_number" required>
+                        <label for="pr_number" class="form-inline">GH Pull Request #</label><input type="text" class="form-control form-inline" pattern="^\d{1,6}$" maxlength="6" placeholder="12345" id="pr_number" name="pr_number" required>
                     </div>
                     <div class="col form-inline">
                         <small id="gh-help" class="form-text text-muted">The CPython GitHub pull request number.</small>
