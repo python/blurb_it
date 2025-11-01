@@ -1,5 +1,5 @@
-aiohttp==3.12.15
+aiohttp==3.13.2
 aiohttp-jinja2==1.6
 gidgethub==5.4.0
 aiohttp-session[secure]==2.12.1
-sentry-sdk==2.39.0
+sentry-sdk==2.43.0
