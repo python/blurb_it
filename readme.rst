@@ -53,7 +53,7 @@ Deploy
 Requirements and dependencies
 =============================
 
-- Python 3.9+
+- Python 3.10+
 - aiohttp
 - aiohttp-jinja2
 - gidgethub >= 5.0.0
