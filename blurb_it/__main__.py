@@ -31,9 +31,7 @@ async def handle_get(request: Request) -> Response:
     # data = request.query_string
     # data2 = await request.rel_url.query['']
     request_session = await get_session(request)
-    context = {}
-    context["client_id"] = os.environ.get("GH_CLIENT_ID")
-    context["app_url"] = os.environ.get("APP_URL")
+    context = util.get_app_context()
     if request_session.get("username") and request_session.get("token"):
         context["username"] = request_session["username"]
         location = request.app.router["add_blurb"].url_for()
@@ -48,9 +46,7 @@ async def handle_get(request: Request) -> Response:
 @routes.get("/howto", name="howto")
 async def handle_howto_get(request: Request) -> Response:
     """Render a page explaining how to use blurb_it"""
-    context = {}
-    context["client_id"] = os.environ.get("GH_CLIENT_ID")
-    context["app_url"] = os.environ.get("APP_URL")
+    context = util.get_app_context()
     response = aiohttp_jinja2.render_template("howto.html", request, context=context)
     return response
 
@@ -60,9 +56,7 @@ async def handle_install(request: Request) -> Response:
     """Render a page, ask user to install blurb_it"""
     # data = request.query_string
     # data2 = await request.rel_url.query['']
-    context = {}
-    context["client_id"] = os.environ.get("GH_CLIENT_ID")
-    context["app_url"] = os.environ.get("APP_URL")
+    context = util.get_app_context()
     if await util.has_session(request):
         context.update(await util.get_session_context(request, context))
 
