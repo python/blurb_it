@@ -57,9 +57,148 @@ It should be a simple ReST paragraph.
 Don't start with '- Issue #<n>: ' or '- gh-issue-<n>: ' or that sort of stuff." required></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary mb-2">📜🤖 blurb it!</button>
+                <button type="button" class="btn btn-outline-secondary mb-2" id="prepare-ai-prompt">Generate prompt for AI to write NEWS entry</button>
             </form>
         </div>
         <div class="col-md-12">Alternatively, you can use <a href="https://devguide.python.org/committing/#what-s-new-and-news-entries">blurb on the command line</a>.</div>
     </div>
+
+    <div class="modal fade" id="aiPromptModal" tabindex="-1" role="dialog" aria-labelledby="aiPromptModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aiPromptModalLabel">Prompt for AI to write NEWS entry</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning d-none" id="ai-prompt-warning" role="alert"></div>
+                    <textarea class="form-control" id="ai-prompt-text" rows="18" readonly></textarea>
+                    <small class="form-text text-muted">
+                        Copy this prompt into ChatGPT, Claude, Gemini, DeepSeek, or another AI assistant to generate the NEWS entry. The generated text is only a reference; please review it before entering it in the NEWS entry box.
+                    </small>
+                </div>
+                <div class="modal-footer">
+                    <span class="text-muted mr-auto" id="ai-prompt-copy-status"></span>
+                    <button type="button" class="btn btn-outline-primary" id="copy-ai-prompt">Copy prompt</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var prepareButton = document.getElementById("prepare-ai-prompt");
+            var copyButton = document.getElementById("copy-ai-prompt");
+            var promptText = document.getElementById("ai-prompt-text");
+            var copyStatus = document.getElementById("ai-prompt-copy-status");
+            var warning = document.getElementById("ai-prompt-warning");
+
+            function getFieldValue(id) {
+                var field = document.getElementById(id);
+                return field ? field.value.trim() : "";
+            }
+
+            function getSelectedSection() {
+                var section = document.getElementById("section");
+                if (!section) {
+                    return "";
+                }
+                return section.options[section.selectedIndex].text.trim();
+            }
+
+            function buildPrompt(issueNumber, prNumber, section) {
+                var issueUrl = "https://github.com/python/cpython/issues/" + issueNumber;
+                var prUrl = "https://github.com/python/cpython/pull/" + prNumber;
+                var diffUrl = "https://github.com/python/cpython/pull/" + prNumber + ".diff";
+                var filesUrl = "https://api.github.com/repos/python/cpython/pulls/" + prNumber + "/files";
+                var sectionText = section || "the selected Misc/NEWS section";
+
+                return [
+                    "Please draft exactly one CPython Misc/NEWS entry for the following change.",
+                    "",
+                    "Context links:",
+                    "- GitHub issue: " + issueUrl,
+                    "- GitHub pull request: " + prUrl,
+                    "- Pull request diff: " + diffUrl,
+                    "- Changed files API: " + filesUrl,
+                    "",
+                    "Target NEWS section: " + sectionText,
+                    "",
+                    "Instructions:",
+                    "- Read the issue, pull request, diff, and changed files before drafting.",
+                    "- First decide whether this change needs a NEWS entry.",
+                    "- A NEWS entry is usually not needed for documentation changes, test changes, strictly internal changes with no user-visible effects, or changes that already have a NEWS entry.",
+                    "- If a NEWS entry is probably not needed, say that the user may consider not writing one and wait for a core developer or triager to add the skip news label.",
+                    "- Output only the NEWS entry text.",
+                    "",
+                    "## How to write a NEWS entry",
+                    "",
+                    "All `NEWS` entries end up being part of the changelog. The changelog contains a lot of entries, and its intended audience is mainly users, not core devs and contributors. Take this into consideration when wording your `NEWS` entry. Describe the user-visible effects of your change succinctly and accurately; avoid long technical elaborations, digressions, and do not expect or require the reader to have read the actual diff for the change.",
+                    "",
+                    "The contents of a `NEWS` file should be valid reStructuredText. An 80 character column width should be used. There is no indentation or leading marker in the file, for example `-`. There is also no need to start the entry with the issue number since it is part of the file name. You can use inline markups too. Here is an example of a `NEWS` entry:",
+                    "",
+                    "```rst",
+                    "Fix warning message when :func:`os.chdir` fails inside",
+                    ":func:`test.support.temp_cwd`. Contributed by Chris Jerdonek.",
+                    "```",
+                    "",
+                    "The inline Sphinx roles like `:func:` can be used to help readers find more information. The user can build HTML and verify that the link target is appropriate by using `make html`."
+                ].join("\n");
+            }
+
+            function setWarning(message) {
+                warning.textContent = message;
+                warning.classList.remove("d-none");
+            }
+
+            function clearWarning() {
+                warning.textContent = "";
+                warning.classList.add("d-none");
+            }
+
+            function showModal() {
+                $("#aiPromptModal").modal("show");
+            }
+
+            prepareButton.addEventListener("click", function () {
+                var issueNumber = getFieldValue("issue_number");
+                var prNumber = getFieldValue("pr_number");
+                var section = getSelectedSection();
+
+                copyStatus.textContent = "";
+                promptText.value = "";
+                clearWarning();
+
+                if (!issueNumber || !prNumber) {
+                    setWarning("Enter both the GitHub issue number and pull request number first.");
+                    showModal();
+                    return;
+                }
+
+                promptText.value = buildPrompt(issueNumber, prNumber, section);
+                showModal();
+            });
+
+            copyButton.addEventListener("click", function () {
+                promptText.focus();
+                promptText.select();
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(promptText.value).then(function () {
+                        copyStatus.textContent = "Copied.";
+                    }, function () {
+                        document.execCommand("copy");
+                        copyStatus.textContent = "Copied.";
+                    });
+                } else {
+                    document.execCommand("copy");
+                    copyStatus.textContent = "Copied.";
+                }
+            });
+        }());
+    </script>
 
 {% endblock %}
