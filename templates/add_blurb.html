@@ -110,8 +110,8 @@ Don't start with '- Issue #<n>: ' or '- gh-issue-<n>: ' or that sort of stuff." 
             }
 
             function buildPrompt(issueNumber, prNumber, section) {
-                var issueUrl = "https://github.com/python/cpython/issues/" + issueNumber;
-                var prUrl = "https://github.com/python/cpython/pull/" + prNumber;
+                var issueUrl = "https://api.github.com/repos/python/cpython/issues/" + issueNumber;
+                var prUrl = "https://api.github.com/repos/python/cpython/pulls/" + prNumber;
                 var diffUrl = "https://github.com/python/cpython/pull/" + prNumber + ".diff";
                 var filesUrl = "https://api.github.com/repos/python/cpython/pulls/" + prNumber + "/files";
                 var sectionText = section || "the selected Misc/NEWS section";
