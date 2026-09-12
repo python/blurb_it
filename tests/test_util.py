@@ -23,6 +23,24 @@ class FakeGH:
             yield item
 
 
+def test_get_app_context(monkeypatch):
+    monkeypatch.setenv("GH_CLIENT_ID", "test_client_id")
+    monkeypatch.setenv("APP_URL", "localhost:8080")
+    monkeypatch.setenv("APP_PROTOCOL", "http")
+    ctx = util.get_app_context()
+    assert ctx == {
+        "client_id": "test_client_id",
+        "app_url": "localhost:8080",
+        "app_protocol": "http",
+    }
+
+
+def test_get_app_context_defaults_to_https(monkeypatch):
+    monkeypatch.delenv("APP_PROTOCOL", raising=False)
+    ctx = util.get_app_context()
+    assert ctx["app_protocol"] == "https"
+
+
 async def test_nonceify():
     body = (
         "Lorem ipsum dolor amet flannel squid normcore tbh raclette enim"
