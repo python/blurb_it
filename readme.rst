@@ -44,10 +44,20 @@ Uninstall blurb-it
 Deploy
 ======
 
-|Deploy|
+blurb-it is deployed to `cabotage <https://github.com/cabotage/cabotage-app>`_,
+the container platform managed by the PSF. cabotage builds the image from the
+``Dockerfile`` and runs the ``web`` process from the ``Procfile``. The ``web``
+process listens on the unix socket ``/var/run/cabotage/cabotage.sock`` when
+that directory exists, and on ``PORT`` otherwise. ``GET /health`` is the
+health check path.
 
-.. |Deploy| image:: https://www.herokucdn.com/deploy/button.svg
-   :target: https://heroku.com/deploy?template=https://github.com/python/blurb_it
+Configuration variables, set in the cabotage UI:
+
+- ``GH_CLIENT_ID``, ``GH_CLIENT_SECRET``: the GitHub OAuth App credentials.
+- ``GH_APP_ID``, ``GH_PRIVATE_KEY``: the GitHub App ID and private key.
+- ``APP_URL``: the public hostname, without scheme. Must match the OAuth App
+  callback URL.
+- ``SENTRY_DSN``: where errors are reported.
 
 
 Requirements and dependencies

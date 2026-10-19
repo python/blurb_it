@@ -127,6 +127,11 @@ async def handle_add_blurb_get(request: Request) -> Response:
     return response
 
 
+async def health_check(request: Request) -> Response:
+    """Health check endpoint for container orchestration."""
+    return web.Response(status=200, text="OK")
+
+
 def get_access_token(token_str: str) -> str | None:
     for token in token_str.split("&"):
         token_split = token.split("=")
@@ -237,9 +242,14 @@ if __name__ == "__main__":  # pragma: no cover
         app, loader=jinja2.FileSystemLoader(os.path.join(os.getcwd(), "templates"))
     )
     app["static_root_url"] = os.path.join(os.getcwd(), "static")
-    port = os.environ.get("PORT")
-    if port is not None:
-        port = int(port)
     app.router.add_routes(routes)
+    app.router.add_get("/health", health_check)
     app.add_routes([web.static("/static", os.path.join(os.getcwd(), "static"))])
-    web.run_app(app, port=port)
+
+    if os.path.isdir("/var/run/cabotage"):
+        # On cabotage the TLS sidecar proxies to this unix socket.
+        os.umask(0)
+        web.run_app(app, path="/var/run/cabotage/cabotage.sock")
+    else:
+        port = os.environ.get("PORT")
+        web.run_app(app, port=int(port) if port else None)
