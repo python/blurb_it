@@ -19,7 +19,7 @@ About
 `CPython <https://github.com/python/cpython>`_ pull request.
 
 A ``Misc/NEWS.d`` file `is needed
-<https://devguide.python.org/core-developers/committing/index.html#updating-news-and-what-s-new-in-python>`_
+<https://devguide.python.org/getting-started/pull-request-lifecycle/#news-entry>`_
 for almost all non-trivial changes to CPython.
 
 To use blurb-it, you must be logged in to GitHub.
@@ -53,7 +53,7 @@ Deploy
 Requirements and dependencies
 =============================
 
-- Python 3.9+
+- Python 3.10+
 - aiohttp
 - aiohttp-jinja2
 - gidgethub >= 5.0.0
