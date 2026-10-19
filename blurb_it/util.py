@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import os
 import time
 import secrets
 
@@ -20,6 +21,14 @@ async def get_misc_news_filename(issue_number, section, body):
 async def nonceify(body):
     digest = hashlib.md5(body.encode("utf-8")).digest()
     return base64.urlsafe_b64encode(digest)[0:6].decode("ascii")
+
+
+def get_app_context() -> dict:
+    return {
+        "client_id": os.environ.get("GH_CLIENT_ID"),
+        "app_url": os.environ.get("APP_URL"),
+        "app_protocol": os.environ.get("APP_PROTOCOL", "https"),
+    }
 
 
 async def get_session_context(request, context=None):
