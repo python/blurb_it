@@ -63,7 +63,7 @@ Configuration variables, set in the cabotage UI:
 Requirements and dependencies
 =============================
 
-- Python 3.10+
+- Python 3.11+
 - aiohttp
 - aiohttp-jinja2
 - gidgethub >= 5.0.0
