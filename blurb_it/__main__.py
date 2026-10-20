@@ -64,6 +64,12 @@ async def handle_install(request: Request) -> Response:
     return response
 
 
+@routes.get("/health", name="health")
+async def health_check(request: Request) -> Response:
+    """Health check endpoint for container orchestration."""
+    return web.Response(status=200, text="OK")
+
+
 @routes.get("/add_blurb", name="add_blurb")
 async def handle_add_blurb_get(request: Request) -> Response:
     """Render a page with a textbox and submit button."""
@@ -125,11 +131,6 @@ async def handle_add_blurb_get(request: Request) -> Response:
         "add_blurb.html", request, context=context
     )
     return response
-
-
-async def health_check(request: Request) -> Response:
-    """Health check endpoint for container orchestration."""
-    return web.Response(status=200, text="OK")
 
 
 def get_access_token(token_str: str) -> str | None:
@@ -243,7 +244,6 @@ if __name__ == "__main__":  # pragma: no cover
     )
     app["static_root_url"] = os.path.join(os.getcwd(), "static")
     app.router.add_routes(routes)
-    app.router.add_get("/health", health_check)
     app.add_routes([web.static("/static", os.path.join(os.getcwd(), "static"))])
 
     if os.path.isdir("/var/run/cabotage"):
