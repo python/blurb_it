@@ -58,6 +58,14 @@
                     </div>
                 </div>
                 <div class="mb-3">
+                    <div class="col form-inline">
+                        <label for="cve" class="form-inline">CVE</label><input type="text" class="form-control form-inline" pattern="^(?:[Cc][Vv][Ee]-)?\d{4}-\d{4,}$" maxlength="20" placeholder="CVE-2025-12345" id="cve" name="cve">
+                    </div>
+                    <div class="col form-inline">
+                        <small id="cve-help" class="form-text text-muted">Optional. The CVE identifier (CVE-YYYY-NNNN) for a <strong>Security</strong> entry only.</small>
+                    </div>
+                </div>
+                <div class="mb-3">
                     <textarea class="form-control" id="news_entry" name="news_entry" rows="10" placeholder="Write your Misc/NEWS entry below.
 It should be a simple ReST paragraph.
 Don't start with '- Issue #<n>: ' or '- gh-issue-<n>: ' or that sort of stuff." required></textarea>

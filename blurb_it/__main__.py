@@ -157,7 +157,19 @@ async def handle_add_blurb_post(request: Request) -> Response:
         issue_number = data.get("issue_number", "").strip()
         section = data.get("section", "").strip()
         news_entry = data.get("news_entry", "").strip() + "\n"
+        cve = data.get("cve", "").strip()
+        if cve:
+            if section != util.CVE_SECTION:
+                raise web.HTTPBadRequest(
+                    reason=f"A CVE may only be given for the {util.CVE_SECTION} section."
+                )
+            cve = util.normalize_cve(cve)
+            if cve is None:
+                raise web.HTTPBadRequest(
+                    reason="Invalid CVE identifier (expected CVE-YYYY-NNNN)."
+                )
         path = await util.get_misc_news_filename(issue_number, section, news_entry)
+        news_content = util.get_misc_news_content(news_entry, cve=cve)
         pr_number = data.get("pr_number", "").strip()
 
         context = {}
@@ -190,7 +202,7 @@ async def handle_add_blurb_post(request: Request) -> Response:
                 )
                 pr = await gh.getitem(f"/repos/python/cpython/pulls/{pr_number}")
                 pr_repo_full_name = pr["head"]["repo"]["full_name"]
-                encoded = base64.b64encode(str.encode(news_entry))
+                encoded = base64.b64encode(str.encode(news_content))
                 decoded = encoded.decode("utf-8")
                 put_data = {
                     "branch": pr["head"]["ref"],
