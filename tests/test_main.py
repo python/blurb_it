@@ -31,6 +31,17 @@ def create_app() -> web.Application:
     return app
 
 
+async def test_health_check(aiohttp_client) -> None:
+    app = create_app()
+    app.router.add_get("/health", __main__.health_check)
+    client = await aiohttp_client(app)
+
+    response = await client.get("/health")
+
+    assert response.status == 200
+    assert await response.text() == "OK"
+
+
 async def test_handle_get(aiohttp_client) -> None:
     # Arrange
     app = create_app()
@@ -47,8 +58,10 @@ async def test_handle_get(aiohttp_client) -> None:
     assert "Sign in with GitHub" in text
 
 
-async def test_handle_howto_get(aiohttp_client) -> None:
+async def test_handle_howto_get(aiohttp_client, monkeypatch) -> None:
     # Arrange
+    monkeypatch.setenv("APP_URL", "blurb-it.example.org")
+    monkeypatch.delenv("APP_PROTOCOL", raising=False)
     app = create_app()
 
     # Act
@@ -61,6 +74,8 @@ async def test_handle_howto_get(aiohttp_client) -> None:
     text = await resp.text()
     assert "<title>📜🤖 Blurb It!</title>" in text
     assert "As part of CPython’s workflow" in text
+    assert "https://blurb-it.example.org/" in text
+    assert "herokuapp" not in text
 
 
 async def test_handle_install(aiohttp_client) -> None:
