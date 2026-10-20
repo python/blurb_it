@@ -1,12 +1,34 @@
 import base64
 import hashlib
 import os
+import re
 import time
 import secrets
 
 from aiohttp_session import get_session
 
 from blurb_it import error
+
+# A CVE may only be attached to a Security entry, and is stored as a ".. cve:"
+# metadata line at the top of the news file.
+CVE_SECTION = "Security"
+_cve_re = re.compile(r"(?:CVE-)?(\d{4})-(\d{4,})", re.IGNORECASE | re.ASCII)
+
+
+def normalize_cve(value):
+    """Return a CVE identifier in canonical "CVE-YYYY-NNNN" form."""
+    match = _cve_re.fullmatch(value.strip())
+    if match is None:
+        return None
+    year, number = match.groups()
+    return f"CVE-{year}-{number}"
+
+
+def get_misc_news_content(body, cve=None):
+    """Return the news file contents, with ".. cve:" metadata when given."""
+    if not cve:
+        return body
+    return f".. cve: {cve}\n\n{body}"
 
 
 async def get_misc_news_filename(issue_number, section, body):

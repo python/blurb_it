@@ -193,3 +193,31 @@ async def test_get_installation_not_found():
     with pytest.raises(error.InstallationNotFound) as exc:
         await util.get_installation(gh, "fake_jwt", "octonauts")
     assert exc.value.args[0] == "Can't find installation by that user: octonauts"
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        ("CVE-2025-12345", "CVE-2025-12345"),
+        ("cve-2025-12345", "CVE-2025-12345"),
+        ("2025-12345", "CVE-2025-12345"),
+        ("  CVE-2025-1234  ", "CVE-2025-1234"),
+        ("CVE-2025-123", None),
+        ("CVE-25-12345", None),
+        ("CVE-2025-12345 extra", None),
+        ("gh-12345", None),
+        ("", None),
+    ],
+)
+def test_normalize_cve(value, expected):
+    assert util.normalize_cve(value) == expected
+
+
+def test_get_misc_news_content_without_cve():
+    assert util.get_misc_news_content("Fix a thing.\n") == "Fix a thing.\n"
+    assert util.get_misc_news_content("Fix a thing.\n", cve=None) == "Fix a thing.\n"
+
+
+def test_get_misc_news_content_with_cve():
+    content = util.get_misc_news_content("Fix a thing.\n", cve="CVE-2025-12345")
+    assert content == ".. cve: CVE-2025-12345\n\nFix a thing.\n"
