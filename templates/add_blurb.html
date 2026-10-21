@@ -59,10 +59,33 @@
                                 <div id="cve-help" class="form-text">Optional. The CVE identifier (CVE-YYYY-NNNN) for this security fix.</div>
                             </div>
                             <div class="col-12">
+                                <div class="accordion accordion-info" id="news_entry-guide">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#news_entry-guide-body" aria-expanded="true" aria-controls="news_entry-guide-body">How to write a NEWS entry</button>
+                                        </h2>
+                                        <div id="news_entry-guide-body" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+                                                <p class="mb-2">The entry becomes part of the changelog, whose readers are mainly users, not core developers. Most of them will not open the issue or the diff, so the entry must stand alone. Keep it to <strong>one or two sentences</strong>.</p>
+                                                <ul class="mb-2">
+                                                    <li>Start with a verb in the imperative mood that says what kind of change it is: <em>Fix</em>, <em>Add</em>, <em>Remove</em>, <em>Deprecate</em>, <em>Allow</em>, <em>Raise</em>.</li>
+                                                    <li>Name what changed using inline markup such as <code>:func:</code>, <code>:class:</code> or <code>:mod:</code>, so readers can jump to the documentation.</li>
+                                                    <li>Say what a user will notice, and under what conditions. Then stop.</li>
+                                                    <li>Leave out implementation details, how the problem was found, tests that were added, and phrases such as "this PR".</li>
+                                                    <li>Write valid reStructuredText with no leading <code>-</code> and no issue number, which is already part of the file name.</li>
+                                                    <li>Attribution is optional and goes in a final sentence of the form <em>Patch by Jane Doe.</em></li>
+                                                </ul>
+                                                <p class="mb-2">Example:<br><code>Fix :class:`logging.handlers.TimedRotatingFileHandler` permanently stopping rollover after a rollover failed or its backup file already existed, for example at a DST change.</code></p>
+                                                <p class="mb-0">See <a href="https://devguide.python.org/getting-started/pull-request-lifecycle/#how-to-write-a-news-entry" target="_blank" rel="noopener noreferrer">How to write a NEWS entry</a> in the devguide for the full guidance and more examples.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
                                 <label for="news_entry" class="form-label">NEWS entry</label>
-                                <textarea class="form-control" id="news_entry" name="news_entry" rows="8" placeholder="Write your Misc/NEWS entry below.
-It should be a simple ReST paragraph.
-Don't start with '- Issue #<n>: ' or '- gh-issue-<n>: ' or that sort of stuff." required></textarea>
+                                <textarea class="form-control" id="news_entry" name="news_entry" rows="8" aria-describedby="news_entry-help" placeholder="Fix :func:`module.name` ..." required></textarea>
+                                <div id="news_entry-help" class="form-text">One or two sentences of reStructuredText. See the guide above.</div>
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary">📜🤖 blurb it!</button>
@@ -71,7 +94,7 @@ Don't start with '- Issue #<n>: ' or '- gh-issue-<n>: ' or that sort of stuff." 
                     </form>
                 </div>
             </div>
-            <p class="text-body-secondary small mt-3">Alternatively, you can use <a href="https://devguide.python.org/getting-started/pull-request-lifecycle/#news-entry">blurb on the command line</a>.</p>
+            <p class="text-body-secondary small mt-3">Alternatively, you can use <a href="https://devguide.python.org/getting-started/pull-request-lifecycle/#how-to-add-a-news-entry" target="_blank" rel="noopener noreferrer">blurb on the command line</a>.</p>
         </div>
     </div>
 
@@ -93,6 +116,32 @@ Don't start with '- Issue #<n>: ' or '- gh-issue-<n>: ' or that sort of stuff." 
 
             section.addEventListener("change", toggleCve);
             toggleCve();
+        })();
+    </script>
+
+    <script>
+        // Open the NEWS entry guide for first-time visitors, and remember in
+        // this browser once they collapse it. The elements are already parsed
+        // and Bootstrap dispatches native events, so this needs no load wait.
+        (function () {
+            var key = "blurb_it.collapse_news_entry_guide";
+            var body = document.getElementById("news_entry-guide-body");
+            var button = document.querySelector('[data-bs-target="#news_entry-guide-body"]');
+
+            function collapsedBefore() {
+                try { return localStorage.getItem(key) === "1"; } catch (e) { return false; }
+            }
+            function remember(collapsed) {
+                try { localStorage.setItem(key, collapsed ? "1" : "0"); } catch (e) {}
+            }
+
+            if (collapsedBefore()) {
+                body.classList.remove("show");
+                button.classList.add("collapsed");
+                button.setAttribute("aria-expanded", "false");
+            }
+            body.addEventListener("hidden.bs.collapse", function () { remember(true); });
+            body.addEventListener("shown.bs.collapse", function () { remember(false); });
         })();
     </script>
 

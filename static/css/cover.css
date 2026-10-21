@@ -5,3 +5,19 @@
 .narrow {
   max-width: 40rem;
 }
+
+/* The NEWS entry guide: an accordion in the theme's info colours. */
+.accordion-info {
+  --bs-accordion-color: var(--bs-info-text-emphasis);
+  --bs-accordion-bg: var(--bs-info-bg-subtle);
+  --bs-accordion-border-color: var(--bs-info-border-subtle);
+  --bs-accordion-btn-color: var(--bs-info-text-emphasis);
+  --bs-accordion-btn-bg: var(--bs-info-bg-subtle);
+  --bs-accordion-active-color: var(--bs-info-text-emphasis);
+  --bs-accordion-active-bg: var(--bs-info-border-subtle);
+  --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
+}
+
+.accordion-info .accordion-button {
+  font-weight: 600;
+}
