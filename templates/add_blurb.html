@@ -2,78 +2,77 @@
 
 {% block content %}
 
-    <div class="row">
-        <div class="col-md-12">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
             {% if status == "success" %}
-                <div class="alert alert-success" role="alert">✅ News file (<a href="{{ commit_url }}">{{ path }}</a>) created for <strong><a href="{{ pr_url }}">GH-{{ pr_number }}</a></strong></div>
-                <h3>📜🤖 Blurb it again?</h3>
+                <div class="alert alert-success" role="alert">✅ News file (<a href="{{ commit_url }}" class="alert-link">{{ path }}</a>) created for <strong><a href="{{ pr_url }}" class="alert-link">GH-{{ pr_number }}</a></strong></div>
+                <p class="h4 mb-3">📜🤖 Blurb it again?</p>
             {% else %}
                 {% if status == "failure" %}
-                    <div class="alert alert-danger" role="alert">❌ Cannot create news file for <strong><a href="{{ pr_url }}">GH-{{ pr_number }}</a></strong>! Make sure you have access to that PR!</div>
-                    <h3>📜🤖 Blurb it again?</h3>
+                    <div class="alert alert-danger" role="alert">❌ Cannot create news file for <strong><a href="{{ pr_url }}" class="alert-link">GH-{{ pr_number }}</a></strong>! Make sure you have access to that PR!</div>
+                    <p class="h4 mb-3">📜🤖 Blurb it again?</p>
                 {% endif %}
             {% endif %}
 
-            <form action="/add_blurb" method="post" accept-charset="utf-8" enctype="application/x-www-form-urlencoded">
-                <input type="hidden" name="csrf" value="{{ csrf }}">
-                <div class="mb-3">
-                    <div class="col form-inline">
-                        <label for="issue_number" class="form-inline">GH Issue #</label><input type="text" class="form-control form-inline" pattern="^\d{1,6}$" maxlength="6" placeholder="12345" id="issue_number" name="issue_number" required>
-                    </div>
-                    <div class="col form-inline">
-                        <small id="issue_number-help" class="form-text text-muted">The CPython GitHub issue number.</small>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <div class="col form-inline">
-                        <label for="pr_number" class="form-inline">GH Pull Request #</label><input type="text" class="form-control form-inline" pattern="^\d{1,6}$" maxlength="6" placeholder="12345" id="pr_number" name="pr_number" required>
-                    </div>
-                    <div class="col form-inline">
-                        <small id="gh-help" class="form-text text-muted">The CPython GitHub pull request number.</small>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <div class="col form-inline">
-                        <label for="section" class="form-inline">Choose an option: </label>
-                        <select id="section" name="section" class="form-control form-inline" required>
-                            <option></option>
-                            <option>Security</option>
-                            <option value="Core_and_Builtins">Core and Builtins</option>
-                            <option>Library</option>
-                            <option>Documentation</option>
-                            <option>Tests</option>
-                            <option>Build</option>
-                            <option>Windows</option>
-                            <option>macOS</option>
-                            <option>iOS</option>
-                            <option>Android</option>
-                            <option>FreeBSD</option>
-                            <option>WASI</option>
-                            <option>Emscripten</option>
-                            <option value="Unsupported_platforms">Unsupported platforms</option>
-                            <option>IDLE</option>
-                            <option value="Tools-Demos">Tools and Demos</option>
-                            <option value="C_API">C API</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mb-3" id="cve-group">
-                    <div class="col form-inline">
-                        <label for="cve" class="form-inline">CVE</label><input type="text" class="form-control form-inline" pattern="^(?:[Cc][Vv][Ee]-)?\d{4}-\d{4,}$" maxlength="20" placeholder="CVE-2025-12345" id="cve" name="cve">
-                    </div>
-                    <div class="col form-inline">
-                        <small id="cve-help" class="form-text text-muted">Optional. The CVE identifier (CVE-YYYY-NNNN) for this security fix.</small>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <textarea class="form-control" id="news_entry" name="news_entry" rows="10" placeholder="Write your Misc/NEWS entry below.
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h4 card-title mb-4">Add a NEWS entry</h1>
+                    <form action="/add_blurb" method="post" accept-charset="utf-8" enctype="application/x-www-form-urlencoded">
+                        <input type="hidden" name="csrf" value="{{ csrf }}">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label for="issue_number" class="form-label">GH Issue #</label>
+                                <input type="text" class="form-control" pattern="^\d{1,6}$" maxlength="6" placeholder="12345" id="issue_number" name="issue_number" aria-describedby="issue_number-help" required>
+                                <div id="issue_number-help" class="form-text">The CPython GitHub issue number.</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="pr_number" class="form-label">GH Pull Request #</label>
+                                <input type="text" class="form-control" pattern="^\d{1,6}$" maxlength="6" placeholder="12345" id="pr_number" name="pr_number" aria-describedby="pr_number-help" required>
+                                <div id="pr_number-help" class="form-text">The CPython GitHub pull request number.</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="section" class="form-label">Section</label>
+                                <select id="section" name="section" class="form-select" required>
+                                    <option value="">Choose a section</option>
+                                    <option>Security</option>
+                                    <option value="Core_and_Builtins">Core and Builtins</option>
+                                    <option>Library</option>
+                                    <option>Documentation</option>
+                                    <option>Tests</option>
+                                    <option>Build</option>
+                                    <option>Windows</option>
+                                    <option>macOS</option>
+                                    <option>iOS</option>
+                                    <option>Android</option>
+                                    <option>FreeBSD</option>
+                                    <option>WASI</option>
+                                    <option>Emscripten</option>
+                                    <option value="Unsupported_platforms">Unsupported platforms</option>
+                                    <option>IDLE</option>
+                                    <option value="Tools-Demos">Tools and Demos</option>
+                                    <option value="C_API">C API</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6" id="cve-group">
+                                <label for="cve" class="form-label">CVE</label>
+                                <input type="text" class="form-control" pattern="^(?:[Cc][Vv][Ee]-)?\d{4}-\d{4,}$" maxlength="20" placeholder="CVE-2025-12345" id="cve" name="cve" aria-describedby="cve-help">
+                                <div id="cve-help" class="form-text">Optional. The CVE identifier (CVE-YYYY-NNNN) for this security fix.</div>
+                            </div>
+                            <div class="col-12">
+                                <label for="news_entry" class="form-label">NEWS entry</label>
+                                <textarea class="form-control" id="news_entry" name="news_entry" rows="8" placeholder="Write your Misc/NEWS entry below.
 It should be a simple ReST paragraph.
 Don't start with '- Issue #<n>: ' or '- gh-issue-<n>: ' or that sort of stuff." required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">📜🤖 blurb it!</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <button type="submit" class="btn btn-primary mb-2">📜🤖 blurb it!</button>
-            </form>
+            </div>
+            <p class="text-body-secondary small mt-3">Alternatively, you can use <a href="https://devguide.python.org/getting-started/pull-request-lifecycle/#news-entry">blurb on the command line</a>.</p>
         </div>
-        <div class="col-md-12">Alternatively, you can use <a href="https://devguide.python.org/getting-started/pull-request-lifecycle/#news-entry">blurb on the command line</a>.</div>
     </div>
 
     <script>

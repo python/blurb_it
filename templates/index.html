@@ -1,17 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <div class="text-center py-5">
         <a href="/"><img class="mb-4" src="https://www.python.org/static/community_logos/python-logo-master-v3-TM.png" alt="" height="72"></a>
-        <h1 class="display-4">📜🤖 Blurb it!</h1>
-        <p class="lead"><a href="https://devguide.python.org/getting-started/pull-request-lifecycle/#news-entry">add a blurb</a> to CPython pull request.</p>
-    </div>
-
-    <p class="lead text-center">
-        <a class="btn btn-social btn-github" href="https://github.com/login/oauth/authorize?client_id={{ client_id }}&scope=repo&redirect_uri={{ app_protocol }}://{{ app_url }}/add_blurb">
-        <span class="fa fa-github"></span>
-        Sign in with GitHub
+        <h1 class="display-5 fw-semibold">📜🤖 Blurb it!</h1>
+        <p class="lead text-body-secondary mb-4"><a href="https://devguide.python.org/getting-started/pull-request-lifecycle/#news-entry">Add a blurb</a> to your CPython pull request.</p>
+        <a class="btn btn-dark btn-lg" href="https://github.com/login/oauth/authorize?client_id={{ client_id }}&scope=repo&redirect_uri={{ app_protocol }}://{{ app_url }}/add_blurb">
+            <span class="fa fa-github me-1" aria-hidden="true"></span>
+            Sign in with GitHub
         </a>
-    </p>
-
+    </div>
 {% endblock %}
