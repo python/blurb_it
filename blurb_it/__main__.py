@@ -33,14 +33,8 @@ async def handle_get(request: Request) -> Response:
     request_session = await get_session(request)
     context = util.get_app_context()
     if request_session.get("username") and request_session.get("token"):
-        context["username"] = request_session["username"]
-        location = request.app.router["add_blurb"].url_for()
-        response = web.HTTPFound(location=location)
-    else:
-        response = aiohttp_jinja2.render_template(
-            "index.html", request, context=context
-        )
-    return response
+        raise web.HTTPFound(location=request.app.router["add_blurb"].url_for())
+    return aiohttp_jinja2.render_template("index.html", request, context=context)
 
 
 @routes.get("/howto", name="howto")
@@ -89,7 +83,7 @@ async def handle_add_blurb_get(request: Request) -> Response:
             try:
                 await util.get_installation(gh, jwt, context["username"])
             except error.InstallationNotFound:
-                return web.HTTPFound(location=request.app.router["install"].url_for())
+                raise web.HTTPFound(location=request.app.router["install"].url_for())
 
     elif token is not None:
 
@@ -120,12 +114,12 @@ async def handle_add_blurb_get(request: Request) -> Response:
                 try:
                     await util.get_installation(gh, jwt, context["username"])
                 except error.InstallationNotFound:
-                    return web.HTTPFound(
+                    raise web.HTTPFound(
                         location=request.app.router["install"].url_for()
                     )
 
     else:
-        return web.HTTPFound(location=request.app.router["home"].url_for())
+        raise web.HTTPFound(location=request.app.router["home"].url_for())
 
     response = aiohttp_jinja2.render_template(
         "add_blurb.html", request, context=context
@@ -186,7 +180,7 @@ async def handle_add_blurb_post(request: Request) -> Response:
                     gh, jwt, session_context["username"]
                 )
             except error.InstallationNotFound:
-                return web.HTTPFound(location=request.app.router["install"].url_for())
+                raise web.HTTPFound(location=request.app.router["install"].url_for())
             else:
                 access_token = await get_installation_access_token(
                     gh,
@@ -237,7 +231,7 @@ async def handle_add_blurb_post(request: Request) -> Response:
         response = aiohttp_jinja2.render_template(template, request, context=context)
         return response
     else:
-        return web.HTTPFound(location=request.app.router["add_blurb"].url_for())
+        raise web.HTTPFound(location=request.app.router["add_blurb"].url_for())
 
 
 if __name__ == "__main__":  # pragma: no cover
