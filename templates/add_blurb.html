@@ -57,12 +57,12 @@
                         </select>
                     </div>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" id="cve-group">
                     <div class="col form-inline">
                         <label for="cve" class="form-inline">CVE</label><input type="text" class="form-control form-inline" pattern="^(?:[Cc][Vv][Ee]-)?\d{4}-\d{4,}$" maxlength="20" placeholder="CVE-2025-12345" id="cve" name="cve">
                     </div>
                     <div class="col form-inline">
-                        <small id="cve-help" class="form-text text-muted">Optional. The CVE identifier (CVE-YYYY-NNNN) for a <strong>Security</strong> entry only.</small>
+                        <small id="cve-help" class="form-text text-muted">Optional. The CVE identifier (CVE-YYYY-NNNN) for this security fix.</small>
                     </div>
                 </div>
                 <div class="mb-3">
@@ -75,5 +75,26 @@ Don't start with '- Issue #<n>: ' or '- gh-issue-<n>: ' or that sort of stuff." 
         </div>
         <div class="col-md-12">Alternatively, you can use <a href="https://devguide.python.org/getting-started/pull-request-lifecycle/#news-entry">blurb on the command line</a>.</div>
     </div>
+
+    <script>
+        // The CVE field only applies to the Security section, so show it
+        // only when that section is selected and clear it otherwise.
+        (function () {
+            var section = document.getElementById("section");
+            var cveGroup = document.getElementById("cve-group");
+            var cve = document.getElementById("cve");
+
+            function toggleCve() {
+                var isSecurity = section.value === "Security";
+                cveGroup.hidden = !isSecurity;
+                if (!isSecurity) {
+                    cve.value = "";
+                }
+            }
+
+            section.addEventListener("change", toggleCve);
+            toggleCve();
+        })();
+    </script>
 
 {% endblock %}

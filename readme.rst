@@ -22,6 +22,10 @@ A ``Misc/NEWS.d`` file `is needed
 <https://devguide.python.org/getting-started/pull-request-lifecycle/#news-entry>`_
 for almost all non-trivial changes to CPython.
 
+For an entry in the ``Security`` section, blurb-it also offers an optional
+CVE field. Give the identifier in the ``CVE-YYYY-NNNN`` form and blurb-it
+records it as ``.. cve:`` metadata at the top of the news file.
+
 To use blurb-it, you must be logged in to GitHub.
 
 Install blurb-it GitHub App to your account, and then grant the ``write`` access to your
