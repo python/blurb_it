@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import json
 import os
 
 import aiohttp
@@ -23,6 +24,23 @@ routes = web.RouteTableDef()
 
 
 sentry_sdk.init(os.environ.get("SENTRY_DSN"))
+
+GITHUB_OAUTH_TOKEN_URL = "https://github.com/login/oauth/access_token"
+# Rendered as a 503; the error template adds the link to GitHub's status page.
+GITHUB_UNAVAILABLE_MESSAGE = "GitHub is not responding right now."
+# Fail fast when GitHub accepts the connection but never answers, instead of
+# holding the user's browser for aiohttp's default five minutes.
+GITHUB_TIMEOUT = aiohttp.ClientTimeout(total=30)
+# What a GitHub outage looks like from here. The exceptions in
+# exchange_code_for_token are wrapped in GitHubUnavailable; the rest come from
+# gidgethub calls made directly by the handler.
+GITHUB_UNAVAILABLE_ERRORS = (
+    error.GitHubUnavailable,
+    gidgethub.GitHubBroken,
+    gidgethub.RateLimitExceeded,
+    aiohttp.ClientError,
+    TimeoutError,
+)
 
 
 @routes.get("/", name="home")
@@ -73,50 +91,45 @@ async def handle_add_blurb_get(request: Request) -> Response:
 
     if await util.has_session(request):
         context.update(await util.get_session_context(request, context))
-        async with aiohttp.ClientSession() as session:
-
-            gh = GitHubAPI(session, context["username"])
-
-            jwt = get_jwt(
-                app_id=os.getenv("GH_APP_ID"), private_key=os.getenv("GH_PRIVATE_KEY")
-            )
+        async with aiohttp.ClientSession(timeout=GITHUB_TIMEOUT) as session:
             try:
-                await util.get_installation(gh, jwt, context["username"])
-            except error.InstallationNotFound:
-                raise web.HTTPFound(location=request.app.router["install"].url_for())
+                await require_app_installed(request, session, context["username"])
+            except GITHUB_UNAVAILABLE_ERRORS as exc:
+                raise web.HTTPServiceUnavailable(
+                    text=GITHUB_UNAVAILABLE_MESSAGE
+                ) from exc
 
     elif token is not None:
 
-        async with aiohttp.ClientSession() as session:
-            payload = {
-                "client_id": os.environ.get("GH_CLIENT_ID"),
-                "client_secret": os.environ.get("GH_CLIENT_SECRET"),
-                "code": token,
-            }
-            async with session.post(
-                "https://github.com/login/oauth/access_token", data=payload
-            ) as response:
-                response_text = await response.text()
-                access_token = get_access_token(response_text)
+        async with aiohttp.ClientSession(timeout=GITHUB_TIMEOUT) as session:
+            try:
+                access_token = await exchange_code_for_token(session, token)
                 gh = GitHubAPI(session, "blurb-it", oauth_token=access_token)
-                response = await gh.getitem("/user")
-                login_name = response["login"]
+                try:
+                    user = await gh.getitem("/user")
+                except gidgethub.RateLimitExceeded:
+                    # Throttling is an outage, not a bad token: let the outer
+                    # handler turn it into the 503 page.
+                    raise
+                except gidgethub.BadRequest as exc:
+                    raise error.SignInFailed(
+                        f"GitHub rejected the new token ({exc})"
+                    ) from exc
+                login_name = user["login"]
                 request_session["username"] = login_name
                 request_session["token"] = access_token
-                context["username"] = request_session["username"]
-
-                gh = GitHubAPI(session, context["username"])
-
-                jwt = get_jwt(
-                    app_id=os.getenv("GH_APP_ID"),
-                    private_key=os.getenv("GH_PRIVATE_KEY"),
-                )
-                try:
-                    await util.get_installation(gh, jwt, context["username"])
-                except error.InstallationNotFound:
-                    raise web.HTTPFound(
-                        location=request.app.router["install"].url_for()
-                    )
+                context["username"] = login_name
+                await require_app_installed(request, session, login_name)
+            except GITHUB_UNAVAILABLE_ERRORS as exc:
+                raise web.HTTPServiceUnavailable(
+                    text=GITHUB_UNAVAILABLE_MESSAGE
+                ) from exc
+            except error.SignInFailed as exc:
+                reason = str(exc).rstrip(".")
+                raise web.HTTPBadRequest(
+                    text=f"GitHub sign-in failed: {reason}. "
+                    "Please go back to the home page and sign in again."
+                ) from exc
 
     else:
         raise web.HTTPFound(location=request.app.router["home"].url_for())
@@ -127,12 +140,73 @@ async def handle_add_blurb_get(request: Request) -> Response:
     return response
 
 
-def get_access_token(token_str: str) -> str | None:
-    for token in token_str.split("&"):
-        token_split = token.split("=")
-        if token_split[0] == "access_token":
-            return token_split[1]
-    return None
+async def require_app_installed(
+    request: Request, session: aiohttp.ClientSession, username: str
+) -> None:
+    """Redirect to the install page unless ``username`` has installed the App.
+
+    GitHub errors other than "not installed" propagate so the caller can
+    decide what an outage looks like for its page.
+    """
+    gh = GitHubAPI(session, username)
+    jwt = get_jwt(
+        app_id=os.getenv("GH_APP_ID"), private_key=os.getenv("GH_PRIVATE_KEY")
+    )
+    try:
+        await util.get_installation(gh, jwt, username)
+    except error.InstallationNotFound:
+        raise web.HTTPFound(location=request.app.router["install"].url_for())
+
+
+async def exchange_code_for_token(
+    session: aiohttp.ClientSession, code: str, *, url: str = GITHUB_OAUTH_TOKEN_URL
+) -> str:
+    """Trade the ``code`` from GitHub's OAuth redirect for a user access token.
+
+    ``url`` is GitHub's token endpoint; tests point it at a local server.
+
+    Raises ``GitHubUnavailable`` when GitHub cannot be reached or times out,
+    answers with a server error, or sends back something other than the token
+    endpoint's JSON. The last case is what an outage or rate-limit interstitial looks
+    like: an HTML page whose Content-Security-Policy header is larger than
+    aiohttp's 8 KB header limit, so aiohttp rejects the response before the
+    body is even read.
+
+    Raises ``SignInFailed`` when GitHub rejects the code because it expired or
+    was already used, which the user fixes by signing in again. Any other
+    ``error`` code from GitHub means our client id, secret or callback URL is
+    wrong and raises ``OAuthMisconfigured`` so the deploy problem reaches Sentry.
+    """
+    payload = {
+        "client_id": os.environ.get("GH_CLIENT_ID"),
+        "client_secret": os.environ.get("GH_CLIENT_SECRET"),
+        "code": code,
+    }
+    headers = {"Accept": "application/json"}
+    try:
+        async with session.post(url, data=payload, headers=headers) as response:
+            status = response.status
+            try:
+                data = await response.json()
+            except json.JSONDecodeError:
+                data = None
+    except (aiohttp.ClientError, TimeoutError) as exc:
+        raise error.GitHubUnavailable(str(exc)) from exc
+
+    if status == 429 or status >= 500 or not isinstance(data, dict):
+        raise error.GitHubUnavailable(
+            f"GitHub answered HTTP {status} instead of a token"
+        )
+    if "error" in data:
+        code_error = data["error"]
+        description = data.get("error_description", "")
+        if code_error == "bad_verification_code":
+            raise error.SignInFailed(description or code_error)
+        raise error.OAuthMisconfigured(f"{code_error} {description}".strip())
+    access_token = data.get("access_token")
+    if not access_token:
+        raise error.SignInFailed("GitHub did not return an access token")
+    return access_token
 
 
 @routes.post("/add_blurb")
