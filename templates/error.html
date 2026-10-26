@@ -3,5 +3,11 @@
     <div class="text-center py-5">
         <a href="/"><img class="mb-4" src="https://www.python.org/static/community_logos/python-logo-master-v3-TM.png" alt="" height="72"></a>
         <h1>{{ status }}</h1>
+        {% if status == 503 %}
+            <p class="lead">
+                Check <a href="https://www.githubstatus.com" target="_blank" rel="noopener noreferrer">GitHub's status page</a>
+                for the outage, then try again in a few minutes.
+            </p>
+        {% endif %}
     </div>
 {% endblock %}
