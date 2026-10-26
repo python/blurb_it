@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import json
+import logging
 import os
 
 import aiohttp
@@ -308,14 +309,29 @@ async def handle_add_blurb_post(request: Request) -> Response:
         raise web.HTTPFound(location=request.app.router["add_blurb"].url_for())
 
 
-if __name__ == "__main__":  # pragma: no cover
-    fernet_key = fernet.Fernet.generate_key()
-    secret_key = base64.urlsafe_b64decode(fernet_key)
+def get_session_key() -> str:
+    """Return the Fernet key that encrypts the session cookie.
 
+    The key comes from the ``SESSION_KEY`` environment variable so that it
+    stays the same across restarts and deploys. Without it a random key is
+    generated, which is fine for local development, but then every restart
+    invalidates all existing sessions and signs everyone out.
+    """
+    session_key = os.environ.get("SESSION_KEY")
+    if session_key:
+        return session_key
+    logging.warning(
+        "SESSION_KEY is not set; using a random session key, "
+        "so sessions will not survive a restart."
+    )
+    return fernet.Fernet.generate_key().decode()
+
+
+if __name__ == "__main__":  # pragma: no cover
     app = web.Application(
         middlewares=[
             middleware.error_middleware,
-            session_middleware(EncryptedCookieStorage(secret_key)),
+            session_middleware(EncryptedCookieStorage(get_session_key())),
         ]
     )
 
