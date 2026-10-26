@@ -636,11 +636,16 @@ def test_get_session_key_random_when_unset(monkeypatch, caplog) -> None:
 
     assert session_key != __main__.get_session_key()
     assert "SESSION_KEY is not set" in caplog.text
+    assert "See the Deploy section of the readme." in caplog.text
     EncryptedCookieStorage(session_key)
 
 
 def test_get_session_key_rejects_invalid_value(monkeypatch) -> None:
     monkeypatch.setenv("SESSION_KEY", "not-a-fernet-key")
 
-    with pytest.raises(ValueError, match="SESSION_KEY is not a valid session key"):
+    with pytest.raises(
+        ValueError,
+        match=r"SESSION_KEY is not a valid session key\. "
+        r"See the Deploy section of the readme\.",
+    ):
         __main__.get_session_key()
