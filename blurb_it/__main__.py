@@ -319,6 +319,14 @@ def get_session_key() -> str:
     """
     session_key = os.environ.get("SESSION_KEY")
     if session_key:
+        try:
+            fernet.Fernet(session_key)
+        except ValueError as exc:
+            raise ValueError(
+                "SESSION_KEY is not a valid Fernet key. Generate one with "
+                "`python -c \"from cryptography.fernet import Fernet; "
+                "print(Fernet.generate_key().decode())\"`."
+            ) from exc
         return session_key
     logging.warning(
         "SESSION_KEY is not set; using a random session key, "

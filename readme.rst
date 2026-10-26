@@ -65,7 +65,7 @@ Configuration variables, set in the cabotage UI:
   it once with ``python -c "from cryptography.fernet import Fernet;
   print(Fernet.generate_key().decode())"`` and keep it the same across
   deploys; changing it signs everyone out. Without it the app generates a
-  random key at startup, so every restart signs everyone out.
+  random key at startup, with the same effect on every restart.
 - ``SENTRY_DSN``: where errors are reported.
 
 
