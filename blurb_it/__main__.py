@@ -323,14 +323,13 @@ def get_session_key() -> str:
             fernet.Fernet(session_key)
         except ValueError as exc:
             raise ValueError(
-                "SESSION_KEY is not a valid Fernet key. Generate one with "
-                "`python -c \"from cryptography.fernet import Fernet; "
-                "print(Fernet.generate_key().decode())\"`."
+                "SESSION_KEY is not a valid session key. "
+                "See the Deploy section of the readme."
             ) from exc
         return session_key
     logging.warning(
-        "SESSION_KEY is not set; using a random session key, "
-        "so sessions will not survive a restart."
+        "SESSION_KEY is not set; using a random session key, so sessions "
+        "will not survive a restart. See the Deploy section of the readme."
     )
     return fernet.Fernet.generate_key().decode()
 

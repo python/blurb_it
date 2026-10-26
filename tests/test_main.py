@@ -642,5 +642,5 @@ def test_get_session_key_random_when_unset(monkeypatch, caplog) -> None:
 def test_get_session_key_rejects_invalid_value(monkeypatch) -> None:
     monkeypatch.setenv("SESSION_KEY", "not-a-fernet-key")
 
-    with pytest.raises(ValueError, match="SESSION_KEY is not a valid Fernet key"):
+    with pytest.raises(ValueError, match="SESSION_KEY is not a valid session key"):
         __main__.get_session_key()
