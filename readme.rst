@@ -61,7 +61,24 @@ Configuration variables, set in the cabotage UI:
 - ``GH_APP_ID``, ``GH_PRIVATE_KEY``: the GitHub App ID and private key.
 - ``APP_URL``: the public hostname, without scheme. Must match the OAuth App
   callback URL.
+- ``SESSION_KEY``: the key that encrypts the session cookie. See
+  `Generating the session key`_ below.
 - ``SENTRY_DSN``: where errors are reported.
+
+Generating the session key
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``SESSION_KEY`` is a Fernet key. Generate it once, in any environment that
+has the ``cryptography`` package installed:
+
+.. code-block:: console
+
+   $ python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+
+Copy the whole printed line into ``SESSION_KEY``. Keep it the same across
+deploys: changing it signs everyone out. Without it the app generates a
+random key at startup, with the same effect on every restart. If the value is
+not a valid Fernet key, the app refuses to start.
 
 
 Requirements and dependencies

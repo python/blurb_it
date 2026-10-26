@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import logging
 import pathlib
 
 import aiohttp
@@ -613,3 +614,38 @@ async def test_handle_add_blurb_get_when_installation_lookup_hits_outage(
     # Assert
     assert resp.status == 503
     assert "GitHub is not responding right now" in await resp.text()
+
+
+def test_get_session_key_from_env(monkeypatch, caplog) -> None:
+    expected = fernet.Fernet.generate_key().decode()
+    monkeypatch.setenv("SESSION_KEY", expected)
+
+    session_key = __main__.get_session_key()
+
+    assert session_key == expected
+    assert "SESSION_KEY is not set" not in caplog.text
+    # The key must be usable as-is by the cookie storage.
+    EncryptedCookieStorage(session_key)
+
+
+def test_get_session_key_random_when_unset(monkeypatch, caplog) -> None:
+    monkeypatch.delenv("SESSION_KEY", raising=False)
+
+    with caplog.at_level(logging.WARNING):
+        session_key = __main__.get_session_key()
+
+    assert session_key != __main__.get_session_key()
+    assert "SESSION_KEY is not set" in caplog.text
+    assert "See the Deploy section of the readme." in caplog.text
+    EncryptedCookieStorage(session_key)
+
+
+def test_get_session_key_rejects_invalid_value(monkeypatch) -> None:
+    monkeypatch.setenv("SESSION_KEY", "not-a-fernet-key")
+
+    with pytest.raises(
+        ValueError,
+        match=r"SESSION_KEY is not a valid session key\. "
+        r"See the Deploy section of the readme\.",
+    ):
+        __main__.get_session_key()
